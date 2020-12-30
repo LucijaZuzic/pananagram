@@ -81,7 +81,8 @@
                       , breakbottom: borders[row * numwords + col] === 3 || borders[row * numwords + col] === 5 || borders[row * numwords + col] === 8
                       , breaktop: borders[(row - 1) * numwords + col] === 3 || borders[(row - 1) * numwords + col] === 5 || borders[(row - 1) * numwords + col] === 8
                       , breakright: borders[row * numwords + col] === 6 ||  borders[row * numwords + col] === 7 ||  borders[row * numwords + col] === 8
-                      , breakleft: borders[row * numwords + col - 1] === 6 || borders[row * numwords + col - 1] === 7 || borders[row * numwords + col - 1] === 8}"   
+                      , breakleft: borders[row * numwords + col - 1] === 6 || borders[row * numwords + col - 1] === 7 || borders[row * numwords + col - 1] === 8
+                      , Rfaded: solution[num_order[row * numwords + col] - 1] === '-'}"   
                       v-for="col in Array(numwords).keys()" :key = "col" v-on:click.right="remove_at_position(row, col)" style="cursor: pointer" v-on:click.left="place(row * numwords + col)" oncontextmenu="return false;">
                         <sup class="letternumber">{{num_order[row * numwords + col]}}</sup><span class="letter">{{result[num_order[row * numwords + col] - 1]}}</span>       
                     </td>
@@ -93,7 +94,8 @@
                   incorrect : result[row * numwords + col] !== solution[row * numwords + col] && result[row * numwords + col] && highlight_error
                   , dashedright: barriers[row * numwords + col] === 2, dashedleft: barriers[row * numwords + col - 1] === 2
                   , boldright: barriers[row * numwords + col] === 1
-                  , breakright: barriers[row * numwords + col] === 3, breakleft: barriers[row * numwords + col - 1] === 3}" 
+                  , breakright: barriers[row * numwords + col] === 3, breakleft: barriers[row * numwords + col - 1] === 3,
+                  LFaded: solution[row * numwords + col] === '-'}" 
                   v-for="col in Array(numwords).keys()" :key = "col">
                       <sup class = "letternumber">{{row * numwords + col + 1}}</sup><span class="letter">{{result[row * numwords + col]}}</span>
                   </td>
@@ -222,10 +224,17 @@ export default {
       var j;
       var s = [];
       for (j = 0; j < this.numwords * this.max_word_len; j++) {
-        if (w[j] !== "") {
-          s.push(w[j]);
+        var s1 = "";
+        for (i = 0; i < w[j].length; i++) {
+          if (w[j][i] !== "-") {
+            s1 += w[j][i];
+          }
+        }
+        if (s1!== "") {
+          s.push(s1);
         }
       }
+      i = 0;
       j = 0;
       while (i < s.length) {
         for (j = 0; j < s.length - i - 1; j++) {                    
@@ -247,12 +256,16 @@ export default {
         return;
       }
       var end = start + (this.syllables[this.selected].length - 1) * this.numwords;
-      if (end >= this.num_order.length) {
+      if (end >= this.numwords * this.max_word_len) {
         return;
-      }
-      if (this.position[this.selected] !== -1) {
-        this.remove_syllable(this.selected);
-      }
+      }    
+      var i = 0;
+      while (start + i * this.numwords < this.num_order.length && i < this.syllables[this.selected].length) {
+        if (this.solution[this.num_order[start + i  * this.numwords] - 1] === '-') {
+          return;
+        }
+        i++;
+      }   
       var j = 0;
       for (j = 0; j < this.position.length; j++) {
         if (this.position[j] !== -1) {
@@ -270,8 +283,11 @@ export default {
           }
         }
       }      
+      if (this.position[this.selected] !== -1) {
+        this.remove_syllable(this.selected);
+      }
       this.position[this.selected] = start;
-      var i = 0;
+      i = 0;
       while (start + i * this.numwords < this.num_order.length && i < this.syllables[this.selected].length) {
         this.result[this.num_order[start + i  * this.numwords] - 1] = this.syllables[this.selected].charAt(i);
         i++;
@@ -283,7 +299,7 @@ export default {
       var j = 0;
       for (i = 0; i < this.max_word_len; i++) {
         for (j = 0; j < this.numwords; j++) {
-          if (this.result[i * this.numwords + j] !== this.solution[i * this.numwords + j]) {
+          if (this.result[i * this.numwords + j] !== this.solution[i * this.numwords + j] && this.solution[i * this.numwords + j] !== '-') {
             window.alert("Rješenje nije točno, pokušajte ponovno!")
             return false;
           }

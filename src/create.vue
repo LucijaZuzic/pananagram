@@ -124,7 +124,8 @@
               , breakbottom: borders[row * numwords + col] === 3 || borders[row * numwords + col] === 5 || borders[row * numwords + col] === 8
               , breaktop: borders[(row - 1) * numwords + col] === 3 || borders[(row - 1) * numwords + col] === 5 || borders[(row - 1) * numwords + col] === 8
               , breakright: borders[row * numwords + col] === 6 ||  borders[row * numwords + col] === 7 ||  borders[row * numwords + col] === 8
-              , breakleft: borders[row * numwords + col - 1] === 6 || borders[row * numwords + col - 1] === 7 || borders[row * numwords + col - 1] === 8}" 
+              , breakleft: borders[row * numwords + col - 1] === 6 || borders[row * numwords + col - 1] === 7 || borders[row * numwords + col - 1] === 8,
+              Rfaded: final_word[col][row] === '-'}" 
               v-for="col in Array(numwords).keys()" :key = "col"
               oncontextmenu="return false;" v-on:click.right="border_remove(row, col)" v-on:click.left="border_add(row, col)">
                 <sup class = "letternumber"><input onclick="event.stopPropagation();" oncontextmenu="event.stopPropagation();return false;" class = "numinput" v-on:focusout="validate_number(row, col)" maxlength="3" v-model="num_order[row * numwords + col]"/></sup>
@@ -135,7 +136,7 @@
             <table class="solution right">
                 <tr v-for="row in Array(max_word_len).keys()" :key = "row">
                   <td :class = "{selectedword: color[row * numwords + col], tabledata: true, dashedright: barriers[row * numwords + col] === 2, dashedleft: barriers[row * numwords + col - 1] === 2
-                  , boldright: barriers[row * numwords + col] === 1
+                  , boldright: barriers[row * numwords + col] === 1, Lfaded: solution[row * numwords + col] === '-'
                   , breakright: barriers[row * numwords + col] === 3, breakleft: barriers[row * numwords + col - 1] === 3}" v-for="col in Array(numwords).keys()" :key = "col" 
                   oncontextmenu="return false;" v-on:click.right="barrier_remove(row, col)" v-on:click.left="barrier_add(row, col)">
                     <sup class = "letternumber">{{row * numwords + col + 1}} </sup>
@@ -294,7 +295,8 @@ export default {
       color: [...Array(numwords * max_word_len).fill(false)],
       max_id: 0,
       showvalidity: false,
-      validitytext: ""
+      validitytext: "",
+      oldblack: 0
     }
   },
       
@@ -305,6 +307,7 @@ export default {
       var j;
       var k;
       var last_pos;
+      this.countblack();
       for (i = 0; i < this.numwords; i++) {
         last_pos = i;
         for (j = 0; j < this.max_word_len; j++) {            
@@ -350,10 +353,17 @@ export default {
       var j;
       var s = [];
       for (j = 0; j < this.numwords * this.max_word_len; j++) {
-        if (w[j] !== "") {
-          s.push(w[j]);
+        var s1 = "";
+        for (i = 0; i < w[j].length; i++) {
+          if (w[j][i] !== "-") {
+            s1 += w[j][i];
+          }
+        }
+        if (s1!== "") {
+          s.push(s1);
         }
       }
+      i = 0;
       j = 0;
       while (i < s.length) {
         for (j = 0; j < s.length - i - 1; j++) {                    
@@ -375,7 +385,12 @@ export default {
       }
     },
     clear_syllable(row, col) {
-      this.word[row * this.max_word_len + col] = "";      
+      this.word[row * this.max_word_len + col] = "";    
+      var j = 0;
+      for (j = 0; j < this.max_word_len; j++) {
+        this.num_order[j * this.numwords + row] = "";
+        this.borders[j * this.numwords + row] = 0;
+      }  
       this.find_final_word(row);
       this.syllables = [...this.sort(this.word)];
       this.num_syllables[row]--;
@@ -388,6 +403,11 @@ export default {
       for (j = 0; j <= this.last_active[row]; j++) {
         this.word[row * this.max_word_len + j] = "";
       }
+      j = 0;
+      for (j = 0; j < this.max_word_len; j++) {
+        this.num_order[j * this.numwords + row] = "";
+        this.borders[j * this.numwords + row] = 0;
+      }  
       this.syllables = [...this.sort(this.word)];
       this.num_syllables[row] = 0;
       this.last_active[row] = 0;
@@ -441,6 +461,48 @@ export default {
     select_letter(a) {
       this.letter = a;
     },
+    countblack() {
+      var i;
+      var j;
+      var countb = 0;
+      for (i = 0; i < this.numwords; i++) {
+        for (j = 0; j < this.final_word[i].length; j++) {
+          if (this.final_word[i][j] === '-') {
+            this.borders[j * this.numwords + i] = 0;
+            if (j !== 0) {
+              this.borders[(j - 1) * this.numwords + i] = 0;
+            }
+            if (i !== 0) {
+              this.borders[j * this.numwords + i - 1] = 0;
+            }
+            countb++;
+          }
+        }
+      }
+      for (i = 0; i < this.numwords * this.max_word_len; i++) {
+          if (this.num_order[i] > this.numwords * this.max_word_len - countb) {
+            this.num_order[i] = "";
+          }
+      }
+      countb = 0;
+      for (i = 0; i < this.numwords; i++) {
+        for (j = 0; j < this.final_word[i].length; j++) {
+          if (this.final_word[i][j] === '-') {
+            this.num_order[j * this.numwords + i] = this.numwords * this.max_word_len - countb;
+            countb++;
+          }
+        }
+      }
+      for (i = 0; i <= this.oldblack; i++) {
+        this.barriers[this.numwords * this.max_word_len - 1 - i] = 0;
+      }
+      for (i = 0; i <= countb; i++) {
+        this.barriers[this.numwords * this.max_word_len - 1 - i] = 0;
+      }
+      this.barriers[this.numwords * this.max_word_len - 1 - countb] = 1;
+      this.oldblack = countb;
+      return countb;
+    },
     add_letter(row, col) {
       if (this.letter === "") {
         return;
@@ -454,7 +516,50 @@ export default {
         window.alert("Riječ sadrži maksimalan broj slova.");
         return;
       }
-      if (this.word[row * this.max_word_len + col] == "") {
+      var before = 0;
+      var bre = false;
+      var j;
+      for (i = 0; i <= this.last_active[row]; i++) {
+        for (j = 0; j < this.word[row * this.max_word_len + i].length; j++) {
+          if (this.word[row * this.max_word_len + i][j] !== "-") {
+            bre = true;
+            break;
+          }
+          before++;
+        }
+        if (bre === true) {
+          break;
+        }
+      }
+      var after = word_len;
+      bre = false;
+      for (i = this.last_active[row]; i >= 0 ; i--) {
+        for (j = this.word[row * this.max_word_len + i].length - 1; j >= 0; j--) {
+          if (this.word[row * this.max_word_len + i][j] !== "-") {
+            bre = true;
+            break;
+          }
+          if (after === before) {
+            bre >= true;
+            break;
+          }
+          after--;
+        }
+        if (bre === true) {
+          break;
+        }
+      }
+      var until = 0;
+      for (i = 0; i <= col; i++) {
+        until += this.word[row * this.max_word_len + i].length;
+      }
+      if (!(until <= before || until >= after) && this.letter === '-') {
+        return;
+      }
+      if (!(until >= before && until <= after) && this.letter !== '-') {
+        return;
+      }
+      if (this.word[row * this.max_word_len + col] === "") {
         this.num_syllables[row]++;
       }
       this.word[row * this.max_word_len + col] += this.letter;
@@ -484,6 +589,12 @@ export default {
       this.$forceUpdate();
     },
     barrier_add(row, col) {
+      if (this.solution[row * this.numwords + col] === '-') {
+        return;
+      }
+      if (row * this.numwords + col === this.numwords * this.max_word_len - 1 - this.oldblack) {
+        return;
+      }
       if (col === this.numwords - 1 && row === this.max_word_len - 1) {
         return;
       }
@@ -494,6 +605,12 @@ export default {
       this.$forceUpdate();
     },
     barrier_remove(row, col) {
+      if (this.solution[row * this.numwords + col] === '-') {
+        return;
+      }
+      if (row * this.numwords + col === this.numwords * this.max_word_len - 1 - this.oldblack) {
+        return;
+      }
       if (col === this.numwords - 1 && row === this.max_word_len - 1) {
         return;
       }
@@ -501,6 +618,9 @@ export default {
       this.$forceUpdate();
     },
     border_add(row, col) {
+      if (this.final_word[col][row] === '-') {
+        return;
+      }
       if (this.selected_separator === -1) {
         return;
       }
@@ -520,6 +640,18 @@ export default {
         return;
       }
       if (this.selected_separator === 3 && row === this.max_word_len - 1) {
+        return;
+      }
+      if (this.selected_separator === 1 && this.final_word[col + 1][row] === '-') {
+        return;
+      }
+      if (this.selected_separator === 4 && this.final_word[col + 1][row] === '-') {
+        return;
+      }
+      if (this.selected_separator === 2 && this.final_word[col][row + 1] === '-') {
+        return;
+      }
+      if (this.selected_separator === 3 && this.final_word[col][row + 1] === '-') {
         return;
       }
       if (this.selected_separator === 1 && this.borders[row * this.numwords + col] === 2 || this.selected_separator === 2 && this.borders[row * this.numwords + col] === 1) {
@@ -634,6 +766,9 @@ export default {
       this.$forceUpdate();
     },
     border_remove(row, col) {
+      if (this.final_word[col][row] === '-') {
+        return;
+      }
       this.borders[row * this.numwords + col] = 0;
       this.$forceUpdate();
     },
@@ -840,11 +975,11 @@ export default {
       for (j = 0; j < this.numwords; j++) {
         this.find_final_word(j);
       }
+      this.barriers[this.old_num_words * this.max_word_len - 1 - this.oldblack] = 0;
+      this.old_num_words = this.numwords;
+      this.barriers[this.numwords * this.max_word_len - 1 - this.oldblack] = 1;
       this.syllables = [...this.sort(this.word)];
       this.solution = [...this.calculate_solution()];
-      this.barriers[this.old_num_words * this.max_word_len - 1] = 0;
-      this.old_num_words = this.numwords;
-      this.barriers[this.numwords * this.max_word_len - 1] = 1;
       this.$forceUpdate();
     },
     change_len() {
@@ -883,11 +1018,11 @@ export default {
       if (this.row_with_hint > this.max_word_len) {
         this.row_with_hint = this.max_word_len;
       }
+      this.barriers[this.numwords * this.old_max_word_len - 1 - this.oldblack] = 0;
+      this.old_max_word_len = this.max_word_len;
+      this.barriers[this.numwords * this.max_word_len - 1  - this.oldblack] = 1;
       this.syllables = [...this.sort(this.word)];
       this.solution = [...this.calculate_solution()];
-      this.barriers[this.numwords * this.old_max_word_len - 1] = 0;
-      this.old_max_word_len = this.max_word_len;
-      this.barriers[this.numwords * this.max_word_len - 1] = 1;
       this.$forceUpdate();
     },
     selectword(col) {

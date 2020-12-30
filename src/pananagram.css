@@ -783,3 +783,17 @@
 .visiblesetting {
   font-weight: bold;
 }
+.Rfaded {
+  background-color: black;
+  border: none;
+}
+.Lfaded {
+  background-color: transparent;
+  border: none;
+}
+.Rfaded span, .Rfaded sup, .Rfaded input {
+  display: none;
+}
+.Lfaded span, .Lfaded sup, .Lfaded input {
+  display: none;
+}
