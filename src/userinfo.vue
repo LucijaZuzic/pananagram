@@ -52,6 +52,26 @@
                         </tr>
                     </table> 
                 </td>
+                <td>
+                    <h2 class="description tabletitle" style='width: 100%'>&#129485; Promjeni korisničko ime</h2>
+                    <table style="margin: 0 auto; vertical-align: top">
+                        <tr>
+                            <td>
+                                <table class="frame">
+                                    <tr>
+                                        <td style="white-space: nowrap;">
+                                            <span class="description">Korisničko ime: </span>
+                                            <input class="register description" style="border: none; outline: none" id="uname" type="text" v-model="newusername" />
+                                        </td>
+                                        <td>
+                                            <button class="submit" v-on:click="changeusername()">Spremi </button>
+                                        </td>
+                                    </tr>
+                                </table><br>
+                            </td>
+                        </tr>
+                    </table> 
+                </td>
             </tr>
         </table><br>
         <div v-if="userrecords().length > 0">
@@ -260,6 +280,7 @@ export default {
     return {
         user: user,
         pwd: "",
+        newusername: "",
         records: [],
         users: [],
         puzzles: [],
@@ -314,6 +335,21 @@ export default {
         })
         .then(() => {
             window.alert("Lozinka je izmijenjena.");
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    },
+    changeusername() {
+        axios.post('http://localhost/panagram/src/updateusername.php', {
+            username: this.user.username,
+            newusername: this.newusername,
+            userId: this.user.userId,
+        })
+        .then(() => {
+            this.user.username = this.newusername;
+            window.alert("Korisničko ime je izmijenjeno.");
+            sessionStorage.user = JSON.stringify(this.user);
         })
         .catch((error) => {
             console.log(error);
