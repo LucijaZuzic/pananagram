@@ -1,44 +1,46 @@
 <template>
   <div>
-    <table style='width: 100%; border-collapse: collapse; border: none'>
-      <tr style="background-color: #c5c4bf">
-        <td>
-          <router-link class="router" v-if="user.status === '1'" to="/create">Stvori pananagramku</router-link>
-          <router-link class="router" to="/puzzle_list">Popis zagonetki</router-link>      
-          <router-link class="router" v-if="user.username" to="/search_user">Popis korisnika</router-link>      
-        </td>
-        <td style="text-align: right">    
-          <span v-if="user.username" class="description" style="white-space: nowrap;">Dobrodošli <span style="font-style: italic" v-if="user.status === '1'">admin </span>
-          <span style="font-style: italic" v-else>korisniče </span>
-          <span style="color: #2196F3">{{user.username}} </span>
-          <div class="dropdown">   
-            <button class="dropbtnm">Opcije</button>
-            <div class="dropdown-content">
-              <span class="router" v-on:click="logout()" v-if="user.username" style="cursor: pointer">Odjava</span>
-              <router-link class="router" v-if="user.username" to="/user_info">Profil</router-link>
-              <router-link class="router" v-if="user.username" to="/friend_list">Prijatelji</router-link>
-              <router-link class="router" v-if="user.username" to="/request_info">Zahtjevi</router-link>
-              <router-link class="router" v-if="user.username" to="/blocked_info">Blokirani</router-link>
-            </div>
-          </div>
-          </span>
-          <router-link class="router" v-if="!user.username" to="/log_in">Prijava</router-link>
-          <!--<router-link class="router" v-if="!user.username" to="/register">Registracija</router-link>-->
-        </td>
-      </tr>
-      <br>
-      <tr>
-        <td colspan="2">
-          <router-view></router-view>
-        </td>
-      </tr>
-      <tr>
-        <td class="description" colspan="2">
-          <span style="cursor: pointer" v-on:click="help()">&#9072;</span>
-          <p style="border: 1px solid black" class="description" v-if="showhelp">{{helptext[where]}}</p>
-        </td>
-      </tr>
-    </table>
+    <b-navbar style='text-decoration:none' toggleable="lg" type="dark" variant="info">
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav>
+          <b-nav-item><router-link v-if="user.status === '1'" to="/create">Stvori pananagramku</router-link></b-nav-item>
+          <b-nav-item><router-link to="/puzzle_list">Popis zagonetki</router-link></b-nav-item>
+          <b-nav-item><router-link v-if="user.username" to="/search_user">Popis korisnika</router-link></b-nav-item>
+        </b-navbar-nav>
+        <!-- Right aligned nav items -->
+        <b-navbar-nav class="ml-auto">
+          <b-nav-item>
+            <span v-if="user.username" style="white-space: nowrap;">
+            <router-link to="/user_info">Dobrodošli <span style="font-style: italic" v-if="user.status === '1'">admin </span>
+            <span v-else>korisniče </span>
+            <span >{{user.username}} </span>
+            </router-link>
+            </span>
+            <router-link v-if="!user.username" to="/log_in">Prijava</router-link>
+          </b-nav-item>
+          <b-nav-item-dropdown v-if="user.username" text="Opcije" right>
+            <b-dropdown-item v-if="user.username"><span v-on:click="logout()" style="cursor: pointer">Odjava</span></b-dropdown-item>
+            <b-dropdown-item v-if="user.username"><router-link to="/user_info">Profil</router-link></b-dropdown-item>
+            <b-dropdown-item v-if="user.username"><router-link to="/friend_list">Prijatelji</router-link></b-dropdown-item>
+            <b-dropdown-item v-if="user.username"><router-link to="/request_info">Zahtjevi</router-link></b-dropdown-item>
+            <b-dropdown-item v-if="user.username"><router-link to="/blocked_info">Blokirani</router-link></b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+    <div>
+      <router-view></router-view>
+    </div><br>
+    <div class = "container-fluid">
+      <div class = "row">
+        <div class = "col">
+          <b-button variant='light' v-on:click="help()">?</b-button>
+          <b-alert show variant='light' v-if="showhelp">
+            <p>{{helptext[where]}}</p>
+          </b-alert>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

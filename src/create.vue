@@ -1,164 +1,116 @@
 <template>
-  <div>     
-    <table style="width: 100%">
-      <tr>
-        <td>    
-          <span class="description">Istaknuti pojam: </span>
-          <input type="range" min="1" :max="max_word_len" class="slider" v-model="row_with_hint" v-on:change="change_row_hint()"><span class="description"> {{row_with_hint}}</span><br>
-        </td>
-        <td>    
-          <span class="description">Broj riječi: </span>
-          <input type="range" min="11" max="15" class="slider" v-model="numwords" v-on:change="change_num_words()"><span class="description"> {{numwords}}</span><br>
-        </td>
-        <td>    
-          <span class="description">Duljina riječi: </span>
-          <input type="range" min="8" max="15" class="slider" v-model="max_word_len" v-on:change="change_len()"><span class="description"> {{max_word_len}}</span><br>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3">
+  <div class="container-fluid">    
+    <br>
+    <div class="row">
+      <div class="col">
+          <span>Istaknuti pojam: </span>
+          <b-form-input type="range" min="1" :max="max_word_len" v-model="row_with_hint" v-on:change="change_row_hint()"><span class="description"> {{row_with_hint}}</span></b-form-input>
+     </div>
+      <div class="col">
+          <span>Broj riječi: </span>
+          <b-form-input type="range" min="11" max="15" v-model="numwords" v-on:change="change_num_words()"><span class="description"> {{numwords}}</span></b-form-input>
+      </div>
+      <div class="col">
+          <span>Duljina riječi: </span>
+          <b-form-input type="range" min="8" max="15" v-model="max_word_len" v-on:change="change_len()"><span class="description"> {{max_word_len}}</span></b-form-input>
+      </div>
+    </div>   
+    <div class="row">
+      <div class="col">
           <button :class="{ choice : true, selected: letter === a }" v-for="a in alphabet" :key = "a" v-on:click="select_letter(a)">{{a}}</button>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3">
-          <table>
-            <tr>
-              <!--<td><input type="number" min="1" :max="numwords" v-model="selected_word" v-on:change="check_color()" class = "descriptionnumber"></td>-->
-              <!--<td>
-                  <div class="dropdown">
-                      <button class="dropbtn3 wordnumber">{{selected_word}}</button>
-                      <div class="dropdown-content3">
-                          <label v-for="size in Array(this.numwords).keys()" :key="size" class="updown">
-                              <input type="radio" name="page_size" v-on:change="selected_word=size + 1; check_color()" :value="size"> <span class="description checkmark">{{size + 1}}</span> 
-                          </label>
-                      </div>
-                  </div>
-              </td>-->
-              <td>
-                <span class="descriptionnumber">{{selected_word}}</span>
-                <table style="height: 20px; lineheight: 10px; font-size: 10px; display: inline-block; border-collapse: collapse">
-                  <tr>
-                      <td>
-                          <span class="goup" v-on:click="selected_word += 1">
-                              &#9650;
-                          </span>
-                      </td>
-                  </tr>
-                  <tr>
-                      <td>
-                          <span class="godown" v-on:click="selected_word -= 1">
-                              &#9660;
-                          </span>
-                      </td>
-                  </tr>
-                </table>
-              </td>
-              <td v-for="col in Array(last_active[selected_word - 1] + 1).keys()" :key = "col" class = "choice description" 
-                    oncontextmenu="return false;" v-on:click.right="clear_syllable(selected_word - 1, col)" v-on:click.left="add_letter(selected_word - 1, col)">
-                      {{word[(selected_word - 1) * max_word_len + col]}}
-              </td>
-              <td>
-                <span style="white-space:nowrap;">
-                  <button class = "xbtn" v-on:click="inc_syllable(selected_word - 1)"><span>+</span></button>
-                  <button class = "xbtn" v-on:click="dec_syllable(selected_word - 1)"><span>-</span></button>
-                  <button class = "xbtn" v-on:click="clear_row(selected_word - 1)"><span>X</span></button>
-                </span>
-              </td>
-            </tr>
-          </table> 
-        </td> 
-      </tr>
-      <tr>
-        <td colspan="3">  
-          <textarea rows = 2 class = "letterinput description" placeholder="Unesite opis riječi" v-model="descriptions[selected_word - 1]"> </textarea>
-        </td>
-      </tr>  
-      <tr>   
-        <td colspan="3">   
-          <textarea rows = 3 class = "description letterinput" placeholder="Unesite opis zagonetke" v-model="intro[0]"></textarea>
-        </td>
-      </tr>
-      <tr>  
-        <td colspan="3">  
-          <textarea rows = 1 class = "description author letterinput" placeholder="Unesite izvor zagonetke" v-model="intro[1]"></textarea> 
-        </td>
-      </tr>   
-      <tr>
-        <td colspan="3"> 
-          <table class="left">
-            <tr>
-              <td>
-                <button :class = "{dashedright: true, delimiter: true, selected: selected_separator === 1}" v-on:click="select_separator(1)"><span></span></button>
-                <button :class = "{dashedbottom: true, delimiter: true, selected: selected_separator === 2}" v-on:click="select_separator(2)"><span></span></button>
-                <button :class = "{breakbottom: true, delimiter: true, selected: selected_separator === 3}" v-on:click="select_separator(3)"><span></span></button>
-                <button :class = "{breakright: true, delimiter: true, selected: selected_separator === 4}" v-on:click="select_separator(4)"><span></span></button>
-              </td>
-            </tr>
-          </table> 
-          <table class="right">
-            <tr>
-              <td>
-                <button :class = "{boldright: true, delimiter: true, selected: selected_char === 1}" v-on:click="select_char(1)"><span></span></button>
-                <button :class = "{dashedright: true, delimiter: true, selected: selected_char === 2}" v-on:click="select_char(2)"><span></span></button>
-                <button :class = "{breakright: true, delimiter: true, selected: selected_char === 3}" v-on:click="select_char(3)"><span></span></button>
-              </td>
-            </tr>
-          </table>
-        </td>  
-      </tr>
-      <tr>
-        <td colspan="3">
-          <table class="solution left">
-            <tr>
-                <th class = "wordnumber" v-for="col in Array(numwords).keys()" :key = "col">
-                    <label v-on:click="selectword(col)">{{col + 1}}</label>
-                </th>
-            </tr>
+       </div>
+    </div>  
+    <div class="row">
+      <div class="col">
+        <b-form-select style="margin:5px;display:inline-block; width: 75px"  v-model="selected_word" class="form-select" aria-label="Default select example">
+            <option v-for='(item, index) in descriptions' v-bind:key = index>{{index + 1}}</option>
+        </b-form-select>
+        <b-button v-for="col in Array(last_active[selected_word - 1] + 1).keys()" :key = "col" variant='light' 
+              oncontextmenu="return false;" v-on:click.right="clear_syllable(selected_word - 1, col)" v-on:click.left="add_letter(selected_word - 1, col)">
+                {{word[(selected_word - 1) * max_word_len + col]}}
+        </b-button>&nbsp;
+        <div class="btn-group" role="group">
+          <b-button v-on:click="inc_syllable(selected_word - 1)"><span>+</span></b-button>
+          <b-button v-on:click="dec_syllable(selected_word - 1)"><span>-</span></b-button>
+          <b-button v-on:click="clear_row(selected_word - 1)"><span>x</span></b-button>
+        </div>
+      </div>
+    </div>  
+    <div class="row">
+      <div class="col">
+          <textarea rows = 2 class = "letterinput " placeholder="Unesite opis riječi" v-model="descriptions[selected_word - 1]"> </textarea>
+      </div>
+    </div>  
+    <div class="row">
+      <div class="col">
+          <textarea rows = 3 class = " letterinput" placeholder="Unesite opis zagonetke" v-model="intro[0]"></textarea>
+      </div>
+    </div>  
+    <div class="row">
+      <div class="col">
+           <textarea rows = 1 class = " author letterinput" placeholder="Unesite izvor zagonetke" v-model="intro[1]"></textarea> 
+      </div>
+    </div>  
+    <div class="row">
+      <div class="col">
+        <button :class = "{dashedright: true, delimiter: true, selected: selected_separator === 1}" v-on:click="select_separator(1)"><span></span></button>
+        <button :class = "{dashedbottom: true, delimiter: true, selected: selected_separator === 2}" v-on:click="select_separator(2)"><span></span></button>
+        <button :class = "{breakbottom: true, delimiter: true, selected: selected_separator === 3}" v-on:click="select_separator(3)"><span></span></button>
+        <button :class = "{breakright: true, delimiter: true, selected: selected_separator === 4}" v-on:click="select_separator(4)"><span></span></button>
+      </div>
+      <div class="col">
+        <button style="float:right" :class = "{boldright: true, delimiter: true, selected: selected_char === 1}" v-on:click="select_char(1)"><span></span></button>
+        <button style="float:right" :class = "{dashedright: true, delimiter: true, selected: selected_char === 2}" v-on:click="select_char(2)"><span></span></button>
+        <button style="float:right" :class = "{breakright: true, delimiter: true, selected: selected_char === 3}" v-on:click="select_char(3)"><span></span></button>
+      </div>
+    </div>  
+    <div class="row">
+      <div class="col">
+        <table class="solution left">
+          <tr>
+              <th class = "wordnumber text-center" v-for="col in Array(numwords).keys()" :key = "col">
+                  <label v-on:click="selectword(col)">{{col + 1}}</label>
+              </th>
+          </tr>
+          <tr v-for="row in Array(max_word_len).keys()" :key = "row">
+            <td :class = "{selectedword: col == selected_word - 1, rowwithhint : row === row_with_hint - 1, tabledata : true
+            , dashedbottom: borders[row * numwords + col] === 2 || borders[row * numwords + col] === 4 || borders[row * numwords + col] === 7
+            , dashedtop: borders[(row - 1) * numwords + col] === 2 || borders[(row - 1) * numwords + col] === 4  || borders[(row - 1) * numwords + col] === 7
+            , dashedright: borders[row * numwords + col] === 1 || borders[row * numwords + col] === 4 || borders[row * numwords + col] === 5
+            , dashedleft: borders[row * numwords + col - 1] === 1 || borders[row * numwords + col - 1] === 4 || borders[row * numwords + col - 1] === 5
+            , breakbottom: borders[row * numwords + col] === 3 || borders[row * numwords + col] === 5 || borders[row * numwords + col] === 8
+            , breaktop: borders[(row - 1) * numwords + col] === 3 || borders[(row - 1) * numwords + col] === 5 || borders[(row - 1) * numwords + col] === 8
+            , breakright: borders[row * numwords + col] === 6 ||  borders[row * numwords + col] === 7 ||  borders[row * numwords + col] === 8
+            , breakleft: borders[row * numwords + col - 1] === 6 || borders[row * numwords + col - 1] === 7 || borders[row * numwords + col - 1] === 8,
+            Rfaded: final_word[col][row] === '-'}"            
+            v-for="col in Array(numwords).keys()" :key = "col"
+            oncontextmenu="return false;" v-on:click.right="border_remove(row, col)" v-on:click.left="border_add(row, col)">
+              <sup class = "letternumber"><input onclick="event.stopPropagation();" oncontextmenu="event.stopPropagation();return false;" class = "numinput" v-on:focusout="validate_number(row, col)" maxlength="3" v-model="num_order[row * numwords + col]"/></sup>
+              <span class="letter">{{final_word[col][row]}}</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="col">
+        <table class=" right">
             <tr v-for="row in Array(max_word_len).keys()" :key = "row">
-              <td :class = "{selectedword: col == selected_word - 1, rowwithhint : row === row_with_hint - 1, tabledata : true
-              , dashedbottom: borders[row * numwords + col] === 2 || borders[row * numwords + col] === 4 || borders[row * numwords + col] === 7
-              , dashedtop: borders[(row - 1) * numwords + col] === 2 || borders[(row - 1) * numwords + col] === 4  || borders[(row - 1) * numwords + col] === 7
-              , dashedright: borders[row * numwords + col] === 1 || borders[row * numwords + col] === 4 || borders[row * numwords + col] === 5
-              , dashedleft: borders[row * numwords + col - 1] === 1 || borders[row * numwords + col - 1] === 4 || borders[row * numwords + col - 1] === 5
-              , breakbottom: borders[row * numwords + col] === 3 || borders[row * numwords + col] === 5 || borders[row * numwords + col] === 8
-              , breaktop: borders[(row - 1) * numwords + col] === 3 || borders[(row - 1) * numwords + col] === 5 || borders[(row - 1) * numwords + col] === 8
-              , breakright: borders[row * numwords + col] === 6 ||  borders[row * numwords + col] === 7 ||  borders[row * numwords + col] === 8
-              , breakleft: borders[row * numwords + col - 1] === 6 || borders[row * numwords + col - 1] === 7 || borders[row * numwords + col - 1] === 8,
-              Rfaded: final_word[col][row] === '-'}" 
-              v-for="col in Array(numwords).keys()" :key = "col"
-              oncontextmenu="return false;" v-on:click.right="border_remove(row, col)" v-on:click.left="border_add(row, col)">
-                <sup class = "letternumber"><input onclick="event.stopPropagation();" oncontextmenu="event.stopPropagation();return false;" class = "numinput" v-on:focusout="validate_number(row, col)" maxlength="3" v-model="num_order[row * numwords + col]"/></sup>
-                <span class="letter">{{final_word[col][row]}}</span>
+              <td :class = "{selectedword: color[row * numwords + col], tabledata: true, dashedright: barriers[row * numwords + col] === 2, dashedleft: barriers[row * numwords + col - 1] === 2
+              , boldright: barriers[row * numwords + col] === 1, Lfaded: solution[row * numwords + col] === '-'
+              , breakright: barriers[row * numwords + col] === 3, breakleft: barriers[row * numwords + col - 1] === 3}" v-for="col in Array(numwords).keys()" :key = "col" 
+              oncontextmenu="return false;" v-on:click.right="barrier_remove(row, col)" v-on:click.left="barrier_add(row, col)">
+                <sup class = "letternumber">{{row * numwords + col + 1}} </sup>
+                <span class="letter">{{solution[row * numwords + col]}}</span>
               </td>
             </tr>
-          </table>  
-            <table class="solution right">
-                <tr v-for="row in Array(max_word_len).keys()" :key = "row">
-                  <td :class = "{selectedword: color[row * numwords + col], tabledata: true, dashedright: barriers[row * numwords + col] === 2, dashedleft: barriers[row * numwords + col - 1] === 2
-                  , boldright: barriers[row * numwords + col] === 1, Lfaded: solution[row * numwords + col] === '-'
-                  , breakright: barriers[row * numwords + col] === 3, breakleft: barriers[row * numwords + col - 1] === 3}" v-for="col in Array(numwords).keys()" :key = "col" 
-                  oncontextmenu="return false;" v-on:click.right="barrier_remove(row, col)" v-on:click.left="barrier_add(row, col)">
-                    <sup class = "letternumber">{{row * numwords + col + 1}} </sup>
-                    <span class="letter">{{solution[row * numwords + col]}}</span>
-                  </td>
-                </tr>
-            </table>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3">
-          <button class="submit" v-on:click="check_validity()">
-            Provjeri pananagramku
-          </button>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3">
-          <p style="border: 1px solid black; white-space: pre-line" class="selected description" v-if="showvalidity">{{validitytext}}</p>
-        </td>
-      </tr>
-    </table>
+        </table>
+      </div>
+    </div>  
+    <div class="row">
+      <div class="col">
+        <b-button variant='success' v-on:click="check_validity()">Provjeri pananagramku</b-button><br><br>
+        <b-alert show variant='danger' v-if="showvalidity"><p>{{validitytext}}</p></b-alert>
+      </div>
+    </div>  
   </div>
 </template>
 

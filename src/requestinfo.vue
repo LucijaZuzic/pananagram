@@ -1,188 +1,134 @@
 <template>
-    <div>
-        <h1 class="description pagetitle" style='width: 100%'>&#128158; Informacije o zahtjevima za prijateljstvo</h1>
-        <table style="margin: 0 auto; vertical-align: top">
-            <tr>
-                <td>
-                    <span class="tabletitle description">Pošaljite zahtjev korisniku s određenim korisničkim imenom</span>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <table class="frame" style="margin: 0 auto; vertical-align: top">
-                        <tr>
-                            <td style="white-space: nowrap;">
-                                <span class="description">Korisničko ime: </span>
-                                <input class="register description" style="border: none; outline: none" type="text" v-model="someuser"/> 
-                            </td>
-                            <td>
-                                <button class="submit" v-on:click="sendrequest(someuser)">Pošalji</button>
-                            </td>
-                        </tr>
-                    </table><br>
-                </td>
-            </tr>
-        </table> 
+    <div class='container-fluid'><br>
+        <h1 class="display-4"  style='width: 100%'>&#128158; Informacije o zahtjevima za prijateljstvo</h1><br>
+        <div class="row">
+        <div class="col">
+            <h4>Pošaljite zahtjev korisniku s određenim korisničkim imenom</h4>
+        </div>
+        </div>
+        <div class="d-inline-flex align-items-center p-2">
+            <div class="p-2">
+                <span>Korisničko ime: </span>
+            </div>
+            <div class="p-2">
+                <b-form-input style="display:inline-block;width:225px;" type="text" v-model="someuser"></b-form-input>&nbsp;
+            </div>
+            <div class="p-2">
+                <b-button variant='success' v-on:click="sendrequest(someuser)">Pošalji zahtjev</b-button>
+            </div>
+        </div>
         <div v-if="requestsent.length > 0">
-            <table class="description" style='width: 100%; border-collapse: collapse'>
-                <tr>
-                    <td style="text-align: center" colspan="7">
-                        <span class="tabletitle">&#128228; Poslani zahtjevi za prijateljstvo</span>
-                        <button v-if="!showsent" class = "xbtn" v-on:click="showsent=!showsent"><span>+</span></button>
-                        <button  class = "xbtn" v-on:click="showsent=!showsent" v-else><span>-</span></button>
-                    </td>
-                </tr>
+            <h4 style="cursor: pointer" v-on:click="showsent=!showsent">&#128228; Poslani zahtjevi za prijateljstvo</h4>
+            <div v-if="showsent">
+                <br>Prikaži:
+                <b-form-select style="margin:5px;display:inline-block; width: 75px"  v-model="page_length1" class="form-select" aria-label="Default select example">
+                    <option v-for='(item, index) in requestsent' v-bind:key = index>{{index + 1}}</option>
+                </b-form-select><br><br>
+            </div>
+            <table v-if="showsent" class="table table-hover table-striped text-center">
+                <thead>
+                    <tr style="border-bottom: gray 2px solid;">
+                        <th>Status</th>
+                        <th>Korisničko ime</th>
+                        <th>&#128197; Datum slanja</th>
+                        <th>&#128337; Vrijeme slanja</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="index in puzzle_array1" :key="index">
+                        <td title = "Admin" v-if="finduserwithusername(requestsent[page_length1 * page_number1 + index].requested).status === '1'">&#127775;</td>
+                        <td title = "Korisnik" v-else>&#11088;</td>
+                        <td>{{requestsent[page_length1 * page_number1 + index].requested}}</td>
+                        <td>{{requestsent[page_length1 * page_number1 + index].sent.split(' ')[0]}}</td>
+                        <td>{{requestsent[page_length1 * page_number1 + index].sent.split(' ')[1]}}</td>
+                    </tr>
+                </tbody>
             </table>
-            <table v-if="showsent" class="description" style='width: 100%; border-collapse: collapse'>
+            <table v-if="showsent" style='width: 100%; border-collapse: collapse'>
                 <tr>
-                    <td colspan="7">
-                        Prikaži:
-                        <span class="filter">{{page_length1}}</span>
-                        <table style="height: 20px; lineheight: 10px; font-size: 10px; display: inline-block; border-collapse: collapse">
-                            <tr>
-                                <td>
-                                    <span class="goup" v-on:click="page_length1 += 1">
-                                        &#9650;
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span class="godown" v-on:click="page_length1 -= 1">
-                                        &#9660;
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr><br> 
-                <tr style="border-bottom: gray 2px solid;">
-                    <th class="odd"><span style="white-space: nowrap">Status</span></th>
-                    <th class="odd"><span style="white-space: nowrap">Korisničko</span><span style="white-space: nowrap"> ime</span></th>
-                    <th class="odd"><span style="white-space: nowrap">&#128197; Datum</span><span style="white-space: nowrap"> slanja</span></th>
-                    <th class="odd"><span style="white-space: nowrap">&#128337; Vrijeme</span><span style="white-space: nowrap"> slanja</span></th>
-                </tr>
-                <tr class = "row" v-for="index in puzzle_array1" :key="index">
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}" title = "Admin" v-if="finduserwithusername(requestsent[page_length1 * page_number1 + index].requested).status === '1'">&#127775;</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}" title = "Korisnik" v-else>&#11088;</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{requestsent[page_length1 * page_number1 + index].requested}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{requestsent[page_length1 * page_number1 + index].sent.split(' ')[0]}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{requestsent[page_length1 * page_number1 + index].sent.split(' ')[1]}}</td>
-                </tr><br>
-                <tr>
-                    <td colspan="4">
-                        <table style='width: 100%; border-collapse: collapse'>
-                            <tr>
-                                <td class = "description" v-if="puzzle_array1.length > 1">Zahtjevi {{page_length1 * page_number1 + 1}}-{{Math.min(page_length1 * (page_number1 + 1), requestsent.length)}} od {{requestsent.length}}</td>
-                                <td class = "description" v-else>Zahtjev {{page_number1 + 1}} od {{requestsent.length}}</td>
-                                <td class = "description">Stranica {{page_number1 + 1}} od {{max_page_number1 + 1}}</td>
-                                <!--<td class = "numforward" v-on:click="begin()">&#9664;&#9664;</td>-->
-                                <td class = "numforward" v-on:click="previous1()">&#9664;</td>
-                                <td :class = "{numforward: true, selected: page_number1 === 0}" v-on:click="jumptopage1(0)">1</td>
-                                <td :class = "{numforward: true, selected: page_number1 === 1}" v-on:click="jumptopage1(1)" v-if="Math.ceil(max_page_number1) > 2">2</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number1) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 2}" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number1) > 5 && Math.ceil(max_page_number1) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1}}</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1}" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number1) > 3">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2)}}</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2)}" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2))"  v-if="Math.ceil(max_page_number1) > 4">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2) + 1}}</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number1) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(max_page_number1) - 1}" v-on:click="jumptopage1(Math.ceil(max_page_number1) - 1)" v-if="Math.ceil(max_page_number1) > 1">{{Math.ceil(max_page_number1)}}</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(max_page_number1)}" v-on:click="jumptopage1(Math.ceil(max_page_number1))" v-if="Math.ceil(max_page_number1) > 0">{{Math.ceil(max_page_number1) + 1}}</td>
-                                <td class = "numforward" v-on:click="next1()">&#9654;</td>
-                                <!--<td class = "numforward" v-on:click="end()">&#9654;&#9654;</td>-->
-                            </tr>
-                        </table> 
+                    <td v-if="puzzle_array1.length > 1">Zahtjevi {{page_length1 * page_number1 + 1}}-{{Math.min(page_length1 * (page_number1 + 1), requestsent.length)}} od {{requestsent.length}}</td>
+                    <td v-else>Zahtjev {{page_number1 + 1}} od {{requestsent.length}}</td>
+                    <td >Stranica {{page_number1 + 1}} od {{max_page_number1 + 1}}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="previous1()">&#9664;</b-button>
+                            <b-button :class = "{ns: page_number1 === 0}" variant="outline-primary btn-sm" v-on:click="jumptopage1(0)">1</b-button>
+                            <b-button :class = "{ns: page_number1 === 1}" variant="outline-primary btn-sm" v-on:click="jumptopage1(1)" v-if="Math.ceil(max_page_number1) > 2">2</b-button>
+                            <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number1) > 6">...</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 2}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number1) > 5 && Math.ceil(max_page_number1) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1}}</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number1) > 3">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2)}}</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2)}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2))"  v-if="Math.ceil(max_page_number1) > 4">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2) + 1}}</b-button>
+                            <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number1) > 6">...</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(max_page_number1) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(max_page_number1) - 1)" v-if="Math.ceil(max_page_number1) > 1">{{Math.ceil(max_page_number1)}}</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(max_page_number1)}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(max_page_number1))" v-if="Math.ceil(max_page_number1) > 0">{{Math.ceil(max_page_number1) + 1}}</b-button>
+                            <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="next1()">&#9654;</b-button>
+                        </div>
                     </td>
                 </tr>
-            </table>
+            </table> 
         </div>
-        <p class="description" v-else>
-            <table class="description" style='width: 100%; border-collapse: collapse'>
-                <tr><td style="text-align: center" colspan="7"><span class="tabletitle">&#128228; Poslani zahtjevi za prijateljstvo</span></td></tr><br>
-                <tr><td style="text-align: center" colspan="7">Nije zabilježeno da ste poslali niti jedan zahtjev.</td></tr>
-            </table>
-        </p><br>
+        <div v-else>
+            <h4 >&#128228; Poslani zahtjevi za prijateljstvo</h4> 
+            <h5 >Nije zabilježeno da ste poslali niti jedan zahtjev.</h5>
+        </div><br>
         <div v-if="requestreceived.length > 0">
-            <table class="description" style='width: 100%; border-collapse: collapse'>
-                <tr>
-                    <td style="text-align: center;" colspan="8">
-                        <span class="tabletitle">&#128229; Primljeni zahtjevi za prijateljstvo</span>
-                        <button v-if="!showreceived" class = "xbtn" v-on:click="showreceived=!showreceived"><span>+</span></button>
-                        <button  class = "xbtn" v-on:click="showreceived=!showreceived" v-else><span>-</span></button>
-                    </td>
-                </tr>
+            <h4 style="cursor: pointer" v-on:click="showreceived=!showreceived" >&#128229; Primljeni zahtjevi za prijateljstvo</h4>
+            <div v-if="showreceived">
+                <br>Prikaži:
+                <b-form-select style="margin:5px;display:inline-block; width: 75px"  v-model="page_length2" class="form-select" aria-label="Default select example">
+                    <option v-for='(item, index) in requestreceived' v-bind:key = index>{{index + 1}}</option>
+                </b-form-select><br><br>
+            </div>
+            <table v-if="showreceived"  class="table table-hover table-striped text-center">
+                <thead>
+                    <tr style="border-bottom: gray 2px solid;">
+                        <th>Status</th>
+                        <th>Korisničko ime</th>
+                        <th>&#128197; Datum slanja</th>
+                        <th>&#128337; Vrijeme slanja</th>
+                        <th>Odbij zahtjev</th>
+                        <th>Prihvati zahtjev</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="index in puzzle_array2" :key="index">
+                        <td title = "Admin" v-if="finduserwithusername(requestreceived[page_length2 * page_number2 + index].requester).status === '1'">&#127775;</td>
+                        <td title = "Korisnik" v-else>&#11088;</td>
+                        <td>{{requestreceived[page_length2 * page_number2 + index].requester}}</td>
+                        <td>{{requestreceived[page_length2 * page_number2 + index].sent.split(' ')[0]}}</td>
+                        <td  >{{requestreceived[page_length2 * page_number2 + index].sent.split(' ')[1]}}</td>
+                        <td style="cursor: pointer"   v-on:click="decline(requestreceived[page_length2 * page_number2 + index].requester)">&#128148;</td>
+                        <td style="cursor: pointer"   v-on:click="accept(requestreceived[page_length2 * page_number2 + index].requester)">&#128150;</td>
+                    </tr>
+                </tbody>
             </table>
-            <table v-if="showreceived" class="description" style='width: 100%; border-collapse: collapse'>
+            <table v-if="showreceived" style='width: 100%; border-collapse: collapse'>
                 <tr>
-                    <td colspan="8">
-                        Prikaži:
-                        <span class="filter">{{page_length2}}</span>
-                        <table style="height: 20px; lineheight: 10px; font-size: 10px; display: inline-block; border-collapse: collapse">
-                            <tr>
-                                <td>
-                                    <span class="goup" v-on:click="page_length2 += 1">
-                                        &#9650;
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span class="godown" v-on:click="page_length2 -= 1">
-                                        &#9660;
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr><br> 
-                <tr style="border-bottom: gray 2px solid;">
-                    <th class="odd"><span style="white-space: nowrap">Status</span></th>
-                    <th class="odd"><span style="white-space: nowrap">Korisničko</span><span style="white-space: nowrap"> ime</span></th>
-                    <th class="odd"><span style="white-space: nowrap">&#128197; Datum</span><span style="white-space: nowrap"> slanja</span></th>
-                    <th class="odd"><span style="white-space: nowrap">&#128337; Vrijeme</span><span style="white-space: nowrap"> slanja</span></th>
-                    <th class="odd"><span style="white-space: nowrap">Odbij</span><span style="white-space: nowrap"> zahtjev</span></th>
-                    <th class="odd"><span style="white-space: nowrap">Prihvati</span><span style="white-space: nowrap"> zahtjev</span></th>
+                    <td v-if="puzzle_array2.length > 1">Zahtjevi {{page_length2 * page_number2 + 1}}-{{Math.min(page_length2 * (page_number2 + 1), requestreceived.length)}} od {{requestreceived.length}}</td>
+                    <td v-else>Zahtjev {{page_number2 + 1}} od {{requestreceived.length}}</td>
+                    <td>Stranica {{page_number2 + 1}} od {{max_page_number2 + 1}}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="previous2()">&#9664;</b-button>
+                            <b-button :class = "{ns: page_number2 === 0}" variant="outline-primary btn-sm" v-on:click="jumptopage2(0)">1</b-button>
+                            <b-button :class = "{ns: page_number2 === 1}" variant="outline-primary btn-sm" v-on:click="jumptopage2(1)" v-if="Math.ceil(max_page_number2) > 2">2</b-button>
+                            <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number2) > 6">...</b-button>
+                            <b-button :class = "{ns: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 2}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number2) > 5 && Math.ceil(max_page_number2) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1}}</b-button>
+                            <b-button :class = "{ns: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number2) > 3">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2)}}</b-button>
+                            <b-button :class = "{ns: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2)}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2))"  v-if="Math.ceil(max_page_number2) > 4">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2) + 1}}</b-button>
+                            <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number2) > 6">...</b-button>
+                            <b-button :class = "{ns: page_number2 === Math.ceil(max_page_number2) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(max_page_number2) - 1)" v-if="Math.ceil(max_page_number2) > 1">{{Math.ceil(max_page_number2)}}</b-button>
+                            <b-button :class = "{ns: page_number2 === Math.ceil(max_page_number2)}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(max_page_number2))" v-if="Math.ceil(max_page_number2) > 0">{{Math.ceil(max_page_number2) + 1}}</b-button>
+                            <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="next2()">&#9654;</b-button>
+                        </div>
+                    </td>     
                 </tr>
-                <tr class = "row" v-for="index in puzzle_array2" :key="index">
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}" title = "Admin" v-if="finduserwithusername(requestreceived[page_length2 * page_number2 + index].requester).status === '1'">&#127775;</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}" title = "Korisnik" v-else>&#11088;</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{requestreceived[page_length2 * page_number2 + index].requester}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{requestreceived[page_length2 * page_number2 + index].sent.split(' ')[0]}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{requestreceived[page_length2 * page_number2 + index].sent.split(' ')[1]}}</td>
-                    <td style="cursor: pointer" :class="{even: index % 2 === 0, odd: index % 2 !== 0}" v-on:click="decline(requestreceived[page_length2 * page_number2 + index].requester)">&#128148;</td>
-                    <td style="cursor: pointer" :class="{even: index % 2 === 0, odd: index % 2 !== 0}" v-on:click="accept(requestreceived[page_length2 * page_number2 + index].requester)">&#128150;</td>
-                </tr>
-                <tr>
-                    <td colspan="6">
-                       <table style='width: 100%; border-collapse: collapse'>
-                            <tr>
-                                <td class = "description" v-if="puzzle_array2.length > 1">Zahtjevi {{page_length2 * page_number2 + 1}}-{{Math.min(page_length2 * (page_number2 + 1), requestreceived.length)}} od {{requestreceived.length}}</td>
-                                <td class = "description" v-else>Zahtjev {{page_number2 + 1}} od {{requestreceived.length}}</td>
-                                <td class = "description">Stranica {{page_number2 + 1}} od {{max_page_number2 + 1}}</td>
-                                <!--<td class = "numforward" v-on:click="begin()">&#9664;&#9664;</td>-->
-                                <td class = "numforward" v-on:click="previous2()">&#9664;</td>
-                                <td :class = "{numforward: true, selected: page_number2 === 0}" v-on:click="jumptopage2(0)">1</td>
-                                <td :class = "{numforward: true, selected: page_number2 === 1}" v-on:click="jumptopage2(1)" v-if="Math.ceil(max_page_number2) > 2">2</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number2) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 2}" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number2) > 5 && Math.ceil(max_page_number2) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1}}</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1}" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number2) > 3">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2)}}</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2)}" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2))"  v-if="Math.ceil(max_page_number2) > 4">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2) + 1}}</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number2) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(max_page_number2) - 1}" v-on:click="jumptopage2(Math.ceil(max_page_number2) - 1)" v-if="Math.ceil(max_page_number2) > 1">{{Math.ceil(max_page_number2)}}</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(max_page_number2)}" v-on:click="jumptopage2(Math.ceil(max_page_number2))" v-if="Math.ceil(max_page_number2) > 0">{{Math.ceil(max_page_number2) + 1}}</td>
-                                <td class = "numforward" v-on:click="next2()">&#9654;</td>
-                                <!--<td class = "numforward" v-on:click="end()">&#9654;&#9654;</td>-->
-                            </tr>
-                        </table>  
-                    </td>
-                </tr>
-            </table>
+            </table>  
         </div>
-        <p class="description" v-else>
-            <table class="description" style='width: 100%; border-collapse: collapse'>
-                <tr><td style="text-align: center;" colspan="8"><span class="tabletitle">&#128229; Primljeni zahtjevi za prijateljstvo</span></td></tr><br>
-                <tr><td style="text-align: center;" colspan="8">Nije zabilježeno da ste primili niti jedan zahtjev.</td></tr>
-            </table>
-        </p><br>
+        <div v-else>
+            <h4 >&#128229; Primljeni zahtjevi za prijateljstvo</h4>
+            <h5 >Nije zabilježeno da ste primili niti jedan zahtjev.</h5>
+        </div>
     </div>
 </template>
 
@@ -369,6 +315,7 @@ export default {
                                     })
                                     .then(() => {
                                         window.alert("Zahtjev je poslan.");
+                                        window.location.reload();
                                     })
                                     .catch((error) => {
                                         console.log(error);

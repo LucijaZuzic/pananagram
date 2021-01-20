@@ -1,46 +1,25 @@
 <template>
-    <div v-if="numwords >= 11 && numwords <= 15">           
-      <table style="width: 100%">
-        <tr>
-          <td>
-            <span class="description">Označi greške: </span>
-            <label class="switch">                    
-              <input type="checkbox" v-model="highlight_error"> 
-              <span class="toggle round"></span>
+    <div class='container-fluid' v-if="numwords >= 11 && numwords <= 15">  
+    <br>  
+        <div class="d-flex align-items-baseline flex-row">
+          <div class="p-2 align-items-stretch">
+            <span>Označi greške: </span>
+          </div>
+          <div class="p-2 align-items-baseline">
+            <label class="switch">                   
+            <input type="checkbox" v-model="highlight_error"> 
+            <span class="toggle round"></span>
             </label>
-          </td>
-          <td><div float="right" id="circle"><span class="description">{{format(time_elapsed)}}</span></div></td>
-        </tr>
-        <tr>   
-          <td colspan="2">
-            <span class="descriptionnumber">{{selected_word}}</span>
-            <!--<div class="dropdown">
-                <button class="dropbtn3 wordnumber">{{selected_word}}</button>
-                <div class="dropdown-content3">
-                    <label v-for="size in Array(this.numwords).keys()" :key="size" class="updown">
-                        <input type="radio" name="page_size" v-on:change="selected_word=size + 1; check_color()" :value="size"><span class="description checkmark">{{size + 1}}</span> 
-                    </label>
-                </div>
-            </div>--> 
-            <table style="height: 20px; lineheight: 10px; font-size: 10px; display: inline-block; border-collapse: collapse">
-                <tr>
-                    <td>
-                        <span class="goup" v-on:click="selected_word += 1">
-                            &#9650;
-                        </span>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <span class="godown" v-on:click="selected_word -= 1">
-                            &#9660;
-                        </span>
-                    </td>
-                </tr>
-            </table>
-            <label class = "description"> {{descriptions[selected_word - 1]}}</label>
-          </td>
-        </tr>
+          </div>
+        </div>
+        <div class = "col">
+          <span class="rounded" style="background-color: lightgray; padding: 5px;float:right">{{format(time_elapsed)}}</span>
+        </div> <br>
+      <b-form-select style="margin:5px;display:inline-block; width: 75px"  v-model="selected_word" class="form-select" aria-label="Default select example">
+          <option v-for='(item, index) in descriptions' v-bind:key = index>{{index + 1}}</option>
+      </b-form-select>
+      <label> {{descriptions[selected_word - 1]}}</label>
+       <table>
         <tr> 
           <td colspan="2">
             <button v-for="(syllable, index) in syllables" :key="index" oncontextmenu="return false;" v-on:click.left="select_syllable(index)" v-on:click.right="remove_syllable(index)"
@@ -51,14 +30,14 @@
         </tr>
         <tr> 
           <td colspan="2"> 
-            <label class="description">
+            <label>
               {{intro[0]}}
             </label>
           </td>
         </tr>
         <tr> 
           <td colspan="2">      
-            <label class="description author">
+            <label class="author">
               {{intro[1]}}
             </label>  
           </td>
@@ -67,7 +46,7 @@
           <td colspan="2">      
             <table class="solution left">
                 <tr>
-                    <th class = "wordnumber" v-for="col in Array(numwords).keys()" :key = "col">
+                    <th class = "text-center wordnumber" v-for="col in Array(numwords).keys()" :key = "col">
                         <label v-on:click="selectword(col)">{{col + 1}}</label>
                     </th>
                 </tr>
@@ -105,9 +84,7 @@
         </tr>  
         <tr>
           <td colspan="2">
-            <button class="submit" v-on:click="check_victory()">
-              Provjeri rješenje
-            </button>
+            <b-button variant='success' v-on:click="check_victory()">Provjeri rješenje</b-button>
           </td
         ></tr>
       </table>

@@ -1,99 +1,88 @@
 <template>
-   <div>
-        <table class="description" width="100%" style='border-collapse: collapse'>
-            <tr>
-                <h1 class="description pagetitle">&#128106; Popis korisnika</h1>
-            <tr>
-            <tr>
-                <td>
-                    <span class="description">Prikaži: </span>
-                    <span class="filter">{{page_length}}</span>
-                    <table style="height: 20px; lineheight: 10px; font-size: 10px; display: inline-block; border-collapse: collapse">
-                        <tr>
-                            <td>
-                                <span class="goup" v-on:click="page_length += 1">
-                                    &#9650;
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <span class="godown" v-on:click="page_length -= 1">
-                                    &#9660;
-                                </span>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr><br>
-            <tr>
-                <td style="white-space:nowrap;">
-                    &#128270;
-                    <input autocomplete="off" class="filter register" id="regex" placeholder="Unesite kriterij za pretragu" type="text">
-                    <button class = "router" v-on:click="addfilter()">Pretraži</button>
-                </td>
-            </tr><br>
-            <tr>
-                <td>
-                    <div v-if="filteredusers.length">
-                        <table style='width: 100%; border-collapse: collapse'>
-                            <tr style="border-bottom: gray 2px solid;">
-                                <th class="odd"><span style="white-space: nowrap">Status</span></th>
-                                <th class="odd"><span style="white-space: nowrap">Korisničko</span><span style="white-space: nowrap"> ime</span></th>
-                                <th class="odd"></th>
-                                <th class="odd"></th>
-                                <th class="odd"></th>
-                                <th class="odd"></th>
-                                <th class="odd"></th>
-                            </tr>
-                            <tr class = "row" v-for='index in user_array' v-bind:key = index>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}" title = "Admin" v-if="filteredusers[page_length * page_number + index].status === '1'">&#127775;</td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}" title = "Korisnik" v-else>&#11088;</td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{filteredusers[page_length * page_number + index].username}}</td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">
-                                    <router-link title = "Informacije o korisniku" v-bind:to="{ name: 'friend_info', params: { username: filteredusers[page_length * page_number + index].username }}" style="color: black">
-                                        &#128712;
-                                    </router-link>
-                                </td>
-                                <td title = "Prijatelji ste" v-if="arefriends(filteredusers[page_length * page_number + index].username)" :class="{even: index % 2 === 0, odd: index % 2 !== 0}">&#128145;</td>
-                                <td title = "Niste prijatelji" v-else :class="{even: index % 2 === 0, odd: index % 2 !== 0}">&#128589;</td>
-                                <td title = "Prekinite prijateljstvo" style="cursor: pointer" v-if="arefriends(filteredusers[page_length * page_number + index].username)" :class="{even: index % 2 === 0, odd: index % 2 !== 0}" v-on:click="unfriend(filteredusers[page_length * page_number + index].username)">&#128148;</td>
-                                <td v-if="!arefriends(filteredusers[page_length * page_number + index].username) && !amblocked(filteredusers[page_length * page_number + index].username)" title = "Pošaljite zahtjev za prijateljstvo" style="cursor: pointer" :class="{even: index % 2 === 0, odd: index % 2 !== 0}" v-on:click="sendrequest(filteredusers[page_length * page_number + index].username)">&#128140;</td>
-                                <td v-if="!arefriends(filteredusers[page_length * page_number + index].username) && amblocked(filteredusers[page_length * page_number + index].username)" :class="{even: index % 2 === 0, odd: index % 2 !== 0}"></td>
-                                <td title = "Blokirajte korisnika" style="cursor: pointer" :class="{even: index % 2 === 0, odd: index % 2 !== 0}" v-if="!amblocked(filteredusers[page_length * page_number + index].username)" v-on:click="block(filteredusers[page_length * page_number + index].username)">&#128683;</td>
-                                <td title = "Ukloni blokadu" style="cursor: pointer" :class="{even: index % 2 === 0, odd: index % 2 !== 0}" v-else v-on:click="unblock(filteredusers[page_length * page_number + index].username)">&#9989;</td>
-                                <td title = "Promoviraj u admina" style="cursor: pointer" :class="{even: index % 2 === 0, odd: index % 2 !== 0}" v-if="canupgrade(filteredusers[page_length * page_number + index])" v-on:click="upgrade(filteredusers[page_length * page_number + index])">&#128081;</td>
-                                <td v-else :class="{even: index % 2 === 0, odd: index % 2 !== 0}"></td>
-                            </tr>
-                        </table> 
-                        <br>
-                        <table style='width: 100%; border-collapse: collapse'>
-                            <tr>
-                                <td class = "description" v-if="user_array.length > 1">Korisnici {{page_length * page_number + 1}}-{{Math.min(page_length * (page_number + 1), filteredusers.length)}} od {{filteredusers.length}}</td>
-                                <td class = "description" v-else>Korisnik {{page_length * page_number + 1}} od {{filteredusers.length}}</td>
-                                <td class = "description">Stranica {{page_number + 1}} od {{max_page_number + 1}}</td>
-                                <!--<td class = "numforward" v-on:click="begin()">&#9664;&#9664;</td>-->
-                                <td class = "numforward" v-on:click="previous()">&#9664;</td>
-                                <td :class = "{numforward: true, selected: page_number === 0}" v-on:click="jumptopage(0)">1</td>
-                                <td :class = "{numforward: true, selected: page_number === 1}" v-on:click="jumptopage(1)" v-if="Math.ceil(max_page_number) > 2">2</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2) - 2}" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number) > 5 && Math.ceil(max_page_number) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1}}</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1}" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number) > 3">{{Math.ceil(Math.ceil(max_page_number + 1) / 2)}}</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2)}" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2))"  v-if="Math.ceil(max_page_number) > 4">{{Math.ceil(Math.ceil(max_page_number + 1) / 2) + 1}}</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(max_page_number) - 1}" v-on:click="jumptopage(Math.ceil(max_page_number) - 1)" v-if="Math.ceil(max_page_number) > 1">{{Math.ceil(max_page_number)}}</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(max_page_number)}" v-on:click="jumptopage(Math.ceil(max_page_number))" v-if="Math.ceil(max_page_number) > 0">{{Math.ceil(max_page_number) + 1}}</td>
-                                <td class = "numforward" v-on:click="next()">&#9654;</td>
-                                <!--<td class = "numforward" v-on:click="end()">&#9654;&#9654;</td>-->
-                            </tr>
-                        </table> 
+   <div class='container-fluid'>
+        <br>
+        <h1 class="display-4" >&#128106; Popis korisnika</h1>
+        <div class="d-inline-flex align-items-center p-2">
+            <div class="p-2">
+                <span>Prikaži: </span>
+                <b-form-select style="display:inline-block; width: 75px"  v-model="page_length" class="form-select" aria-label="Default select example">
+                    <option v-for='(item, index) in filteredusers' v-bind:key = index>{{index + 1}}</option>
+                </b-form-select>
+            </div>
+            <div class="p-2">
+                <div class="d-inline-flex align-items-center p-2">
+                    <div class="p-2"> 
+                        &#128270;
+                        <b-form-input autocomplete="off" id="regex" style="margin:5px;display:inline-block; width:225px" placeholder="Unesite kriterij za pretragu" type="text"></b-form-input>
                     </div>
-                    <div v-else>
-                        <p class= "description">Pretraga pomoću zadanog kriterija nije dala rezultate. Izmjenite kriterij i pokušajte ponovno.</p>
+                    <div class="p-2">
+                        <b-button variant='outline-primary' v-on:click="addfilter()">Pretraži</b-button>
                     </div>
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
+        <div v-if="filteredusers.length">
+            <table class="table table-hover table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Korisničko ime</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for='index in user_array' v-bind:key = index>
+                        <td title = "Admin" v-if="filteredusers[page_length * page_number + index].status === '1'">&#127775;</td>
+                        <td title = "Korisnik" v-else>&#11088;</td>
+                        <td>{{filteredusers[page_length * page_number + index].username}}</td>
+                        <td >
+                            <router-link title = "Informacije o korisniku" v-bind:to="{ name: 'friend_info', params: { username: filteredusers[page_length * page_number + index].username }}" style="color: black">
+                                &#128712;
+                            </router-link>
+                        </td>
+                        <td title = "Prijatelji ste" v-if="arefriends(filteredusers[page_length * page_number + index].username)" >&#128145;</td>
+                        <td title = "Niste prijatelji" v-else >&#128589;</td>
+                        <td title = "Prekinite prijateljstvo" style="cursor: pointer" v-if="arefriends(filteredusers[page_length * page_number + index].username)" v-on:click="unfriend(filteredusers[page_length * page_number + index].username)">&#128148;</td>
+                        <td v-if="!arefriends(filteredusers[page_length * page_number + index].username) && !amblocked(filteredusers[page_length * page_number + index].username)" title = "Pošaljite zahtjev za prijateljstvo" style="cursor: pointer" v-on:click="sendrequest(filteredusers[page_length * page_number + index].username)">&#128140;</td>
+                        <td v-if="!arefriends(filteredusers[page_length * page_number + index].username) && amblocked(filteredusers[page_length * page_number + index].username)" ></td>
+                        <td title = "Blokirajte korisnika" style="cursor: pointer" v-if="!amblocked(filteredusers[page_length * page_number + index].username)" v-on:click="block(filteredusers[page_length * page_number + index].username)">&#128683;</td>
+                        <td title = "Ukloni blokadu" style="cursor: pointer" v-else v-on:click="unblock(filteredusers[page_length * page_number + index].username)">&#9989;</td>
+                        <td title = "Promoviraj u admina" style="cursor: pointer" v-if="canupgrade(filteredusers[page_length * page_number + index])" v-on:click="upgrade(filteredusers[page_length * page_number + index])">&#128081;</td>
+                        <td v-else ></td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+            <table style='width: 100%; border-collapse: collapse'>
+                <tr>
+                    <td v-if="user_array.length > 1">Korisnici {{page_length * page_number + 1}}-{{Math.min(page_length * (page_number + 1), filteredusers.length)}} od {{filteredusers.length}}</td>
+                    <td v-else>Korisnik {{page_length * page_number + 1}} od {{filteredusers.length}}</td>
+                    <td>Stranica {{page_number + 1}} od {{max_page_number + 1}}</td>
+                    <td>
+                            <div class="btn-group" role="group">
+                                <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="previous()">&#9664;</b-button>
+                                <b-button :class = "{ns: page_number === 0}" variant="outline-primary btn-sm" v-on:click="jumptopage(0)">1</b-button>
+                                <b-button :class = "{ns: page_number === 1}" variant="outline-primary btn-sm" v-on:click="jumptopage(1)" v-if="Math.ceil(max_page_number) > 2">2</b-button>
+                                <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number) > 6">...</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2) - 2}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number) > 5 && Math.ceil(max_page_number) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1}}</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number) > 3">{{Math.ceil(Math.ceil(max_page_number + 1) / 2)}}</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2)}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2))"  v-if="Math.ceil(max_page_number) > 4">{{Math.ceil(Math.ceil(max_page_number + 1) / 2) + 1}}</b-button>
+                                <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number) > 6">...</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(max_page_number) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(max_page_number) - 1)" v-if="Math.ceil(max_page_number) > 1">{{Math.ceil(max_page_number)}}</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(max_page_number)}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(max_page_number))" v-if="Math.ceil(max_page_number) > 0">{{Math.ceil(max_page_number) + 1}}</b-button>
+                                <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="next()">&#9654;</b-button>
+                            </div>
+                        </td>
+                </tr>
+            </table> 
+        </div>
+        <div v-else>
+            <p>Pretraga pomoću zadanog kriterija nije dala rezultate. Izmjenite kriterij i pokušajte ponovno.</p>
+        </div>
     </div>
 </template>
 

@@ -1,24 +1,25 @@
 <template>
-  <div>   
+  <div class='container-fluid'>
+    <br>
     <table style="margin: 0 auto;">
       <tr>
         <td>
-          <table class="frame">
+          <table>
             <tr>
               <td style="white-space: nowrap;">
-                <span class="description">Korisničko ime: </span>
+                <span>Korisničko ime: </span>
               </td>
               <td>
-                <input class="register description" style="border: none; outline: none" type="text" v-model="dummyuser.username" /> 
+                <b-form-input style="display:inline-block;margin:5px" type="text" v-model="dummyuser.username"></b-form-input>
               </td>
             </tr>
             <tr>
               <td style="white-space: nowrap;">
-                <span class="description">Lozinka: </span>
+                <span>Lozinka: </span>
               </td>
               <td style="white-space: nowrap;">
-                <input class="register description" style="border: none; outline: none" id="pass" type="password" v-model="dummyuser.password" />
-                <span class="eye description" style="text-decoration: line-through" id="eye" v-on:click="showpassword()">&#128065;</span>
+                <b-form-input style="display:inline-block;margin:5px" id="pass" type="password" v-model="dummyuser.password"></b-form-input>
+                <span class="eye" style="text-decoration: line-through" id="eye" v-on:click="showpassword()">&#128065;</span>
               </td>
             </tr>
           </table><br> 
@@ -29,12 +30,12 @@
           <table>
             <tr>
               <td>
-                <button class="submit" v-on:click="getall()">Prijavi se </button>
+                <b-button variant='success' v-on:click="getall()">Prijavi se </b-button>
               </td>
             </tr><br> 
             <tr>
               <td>
-                <span class="description">Još nemate račun?</span><router-link class="router" to="/register">Registracija</router-link>
+                <span>Još nemate račun?</span>&nbsp;<router-link style="color: #2196F3" to="/register">Registracija</router-link>
               </td>
             </tr>
           </table> 

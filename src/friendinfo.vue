@@ -1,214 +1,165 @@
 <template>
-    <div>
-        <span class="description pagetitle" style='width: 100%; display: inline-block; text-ačign: center'>
+    <div class='container-fluid'>
+        <h1 class="display-4">
             <span v-if="friend.status==='1'" title="Admin">&#127775; Informacije o <i>adminu</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
             <span v-else title="Korisnik">&#11088; Informacije o <i>korisniku</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-        </span>
-        <span class="description tabletitle" v-if="arefriends(friend.username)">
-            <p>&#128145; Prijatelji ste od {{friendssince(friend.username)}}</p>
-            <p style="cursor: pointer" v-on:click="unfriend(friend.username)">&#128148; Prekini prijateljstvo</p>
-            <p style="cursor: pointer" v-on:click="block(friend.username)">&#128683; Blokiraj korisnika</p>
-        </span>
-        <span class="description tabletitle" v-else>
-            <p>&#128589; Niste prijatelji</p>
-            <p v-if="!amblocked(friend.username)" style="cursor: pointer" v-on:click="sendrequest(friend.username)">&#128140; Pošalji zahtjev za prijateljstvo</p>
-            <p v-if="amblocked(friend.username)" style="cursor: pointer" v-on:click="unblock(friend.username)">&#9989; Ukloni blokadu</p>
-            <p v-else style="cursor: pointer" v-on:click="block(friend.username)">&#128683; Blokiraj korisnika</p>
-        </span>
-        <span class="description tabletitle" v-if="user.status === '1' && friend.status !== '1'">
-            <p style="cursor: pointer" v-on:click="upgrade(friend)">&#128081; Promoviraj u admina</p>
-        </span>
-        <div v-if="userrecords().length > 0">
-            <table class="description" style='width: 100%; border-collapse: collapse'>
-                <tr>
-                    <td style="text-align: center" colspan="7">
-                        <span class="tabletitle" v-if="friend.status==='1'">&#127942; Osobni rekordi <i>admina</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-                        <span class="tabletitle" v-else>&#127942; Osobni rekordi <i>korisnika</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-                        <button v-if="!showrecords" class = "xbtn" v-on:click="showrecords=!showrecords"><span>+</span></button>
-                        <button  class = "xbtn" v-on:click="showrecords=!showrecords" v-else><span>-</span></button>
-                    </td>
-                </tr>
-            </table>
-            <table v-if="showrecords" class="description" style='width: 100%; border-collapse: collapse'>
-                <tr>
-                    <td colspan="7">
-                        Prikaži:
-                        <span class="filter">{{page_length1}}</span>
-                        <table style="height: 20px; lineheight: 10px; font-size: 10px; display: inline-block; border-collapse: collapse">
-                            <tr>
-                                <td>
-                                    <span class="goup" v-on:click="page_length1 += 1">
-                                        &#9650;
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span class="godown" v-on:click="page_length1 -= 1">
-                                        &#9660;
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr><br> 
-                <tr style="border-bottom: gray 2px solid;">
-                    <th class="odd"><span style="white-space: nowrap">Broj</span><span style="white-space: nowrap"> zagonetke</span></th>
-                    <th class="odd"><span style="white-space: nowrap">Broj</span><span style="white-space: nowrap"> riječi</span></th>
-                    <th class="odd"><span style="white-space: nowrap">Duljina</span><span  style="white-space: nowrap"> riječi</span></th>
-                    <th style="white-space: nowrap" class="odd">Izvor</th>
-                    <th style="white-space: nowrap" class="odd">&#128197; Datum</th>
-                    <th style="white-space: nowrap" class="odd">&#128337; Vrijeme</th>
-                    <th style="white-space: nowrap" class="odd">&#9201; Rezultat</th>
-                </tr>
-                <tr class = "row" v-for="index in puzzle_array1" :key="index">
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{userrecords()[page_length1 * page_number1 + index].id}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).numwords}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).max_word_len}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).intro[1]}}</td>
-                    <td style="white-space: nowrap" :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{userrecords()[page_length1 * page_number1 + index].scoredate.split(" ")[0]}}</td>
-                    <td style="white-space: nowrap" :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{userrecords()[page_length1 * page_number1 + index].scoredate.split(" ")[1]}}</td>
-                    <td style="white-space: nowrap" :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{format(userrecords()[page_length1 * page_number1 + index].score)}}</td>
-                </tr><br>
-                <tr>
-                    <td colspan="7">
-                        <table style='width: 100%; border-collapse: collapse'>
-                            <tr>
-                                <td class = "description" v-if="puzzle_array1.length > 1">Rekordi {{page_length1 * page_number1 + 1}}-{{Math.min(page_length1 * (page_number1 + 1), userrecords().length)}} od {{userrecords().length}}</td>
-                                <td class = "description" v-else>Rekord {{page_number1 + 1}} od {{userrecords().length}}</td>
-                                <td class = "description">Stranica {{page_number1 + 1}} od {{max_page_number1 + 1}}</td>
-                                <!--<td class = "numforward" v-on:click="begin()">&#9664;&#9664;</td>-->
-                                <td class = "numforward" v-on:click="previous1()">&#9664;</td>
-                                <td :class = "{numforward: true, selected: page_number1 === 0}" v-on:click="jumptopage1(0)">1</td>
-                                <td :class = "{numforward: true, selected: page_number1 === 1}" v-on:click="jumptopage1(1)" v-if="Math.ceil(max_page_number1) > 2">2</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number1) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 2}" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number1) > 5 && Math.ceil(max_page_number1) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1}}</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1}" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number1) > 3">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2)}}</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2)}" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2))"  v-if="Math.ceil(max_page_number1) > 4">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2) + 1}}</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number1) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(max_page_number1) - 1}" v-on:click="jumptopage1(Math.ceil(max_page_number1) - 1)" v-if="Math.ceil(max_page_number1) > 1">{{Math.ceil(max_page_number1)}}</td>
-                                <td :class = "{numforward: true, selected: page_number1 === Math.ceil(max_page_number1)}" v-on:click="jumptopage1(Math.ceil(max_page_number1))" v-if="Math.ceil(max_page_number1) > 0">{{Math.ceil(max_page_number1) + 1}}</td>
-                                <td class = "numforward" v-on:click="next1()">&#9654;</td>
-                                <!--<td class = "numforward" v-on:click="end()">&#9654;&#9654;</td>-->
-                            </tr>
-                        </table> 
-                    </td>
-                </tr>
-            </table>
+        </h1><br>
+        <div class="row">
+            <div clas="col">
+                <h4  v-if="arefriends(friend.username)">
+                    <p>&#128145; Prijatelji ste od {{friendssince(friend.username)}}</p>
+                    <p style="cursor: pointer" v-on:click="unfriend(friend.username)">&#128148; Prekini prijateljstvo</p>
+                </h4>
+                <h4  v-else>
+                    <p>&#128589; Niste prijatelji</p>
+                    <p v-if="!amblocked(friend.username)" style="cursor: pointer" v-on:click="sendrequest(friend.username)">&#128140; Pošalji zahtjev za prijateljstvo</p>
+                </h4>
+            </div>
+            <div clas="col">
+                <h4 >
+                    <p v-if="amblocked(friend.username)" style="cursor: pointer" v-on:click="unblock(friend.username)">&#9989; Ukloni blokadu</p>
+                    <p v-else style="cursor: pointer" v-on:click="block(friend.username)">&#128683; Blokiraj korisnika</p>
+                </h4>
+            </div>
+            <div clas="col">
+                <h4  v-if="user.status === '1' && friend.status !== '1'">
+                    <p style="cursor: pointer" v-on:click="upgrade(friend)">&#128081; Promoviraj u admina</p>
+                </h4>
+            </div>
+        </div><br>
+        <div class = "row" v-if="userrecords().length > 0">
+            <div class="col">
+                <h4 v-on:click="showrecords=!showrecords" style="cursor: pointer" v-if="friend.status==='1'">&#127942; Osobni rekordi <i>admina</i> <span style="color: #2196F3">{{this.friend.username}}</span></h4>
+                <h4 v-on:click="showrecords=!showrecords" style="cursor: pointer" v-else>&#127942; Osobni rekordi <i>korisnika</i> <span style="color: #2196F3">{{this.friend.username}}</span></h4>
+            </div>
         </div>
-        <p class="description" v-else>
-            <table class="description" style='width: 100%; border-collapse: collapse'>
-                <tr>
-                    <td class="tabletitle" style="text-align: center" colspan="7">
-                        <span v-if="friend.status==='1'">&#127942; Osobni rekordi <i>admina</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-                        <span v-else>&#127942; Osobni rekordi <i>korisnika</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-                    </td>
-                </tr><br>
-                <tr><td style="text-align: center" colspan="7">Nije zabilježeno da je <span style="color: #2196F3">{{this.friend.username}}</span> riješio niti jednu zagonetku.</td></tr>
+        <div class = "row" v-if="userrecords().length > 0">
+            <div class="col" v-if="showrecords">
+                <br>Prikaži:
+                <b-form-select style="margin:5px;display:inline-block; width: 75px"  v-model="page_length1" class="form-select" aria-label="Default select example">
+                    <option v-for='(item, index) in userrecords()' v-bind:key = index>{{index + 1}}</option>
+                </b-form-select><br><br>
+            </div>
+            <table v-if="showrecords" class="table table-hover table-striped text-center" style='width: 100%; border-collapse: collapse'>
+                <thead>
+                <tr style="border-bottom: gray 2px solid;">
+                    <th>Broj zagonetke</th>
+                    <th>Broj riječi</th>
+                    <th>Duljina riječi</th>
+                    <th>Izvor</th>
+                    <th>&#128197; Datum</th>
+                    <th>&#128337; Vrijeme</th>
+                    <th>&#9201; Rezultat</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="index in puzzle_array1" :key="index">
+                    <td>{{userrecords()[page_length1 * page_number1 + index].id}}</td>
+                    <td>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).numwords}}</td>
+                    <td>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).max_word_len}}</td>
+                    <td>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).intro[1]}}</td>
+                    <td>{{userrecords()[page_length1 * page_number1 + index].scoredate.split(" ")[0]}}</td>
+                    <td>{{userrecords()[page_length1 * page_number1 + index].scoredate.split(" ")[1]}}</td>
+                    <td>{{format(userrecords()[page_length1 * page_number1 + index].score)}}</td>
+                </tr>
+                </tbody>
             </table>
-        </p><br>
+            <table v-if="showrecords" style='width: 100%; border-collapse: collapse'>
+                <tr>
+                    <td v-if="puzzle_array1.length > 1">Rekordi {{page_length1 * page_number1 + 1}}-{{Math.min(page_length1 * (page_number1 + 1), userrecords().length)}} od {{userrecords().length}}</td>
+                    <td v-else>Rekord {{page_number1 + 1}} od {{userrecords().length}}</td>
+                    <td>Stranica {{page_number1 + 1}} od {{max_page_number1 + 1}}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="previous1()">&#9664;</b-button>
+                            <b-button :class = "{ns: page_number1 === 0}" variant="outline-primary btn-sm" v-on:click="jumptopage1(0)">1</b-button>
+                            <b-button :class = "{ns: page_number1 === 1}" variant="outline-primary btn-sm" v-on:click="jumptopage1(1)" v-if="Math.ceil(max_page_number1) > 2">2</b-button>
+                            <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number1) > 6">...</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 2}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number1) > 5 && Math.ceil(max_page_number1) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1}}</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number1) > 3">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2)}}</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(Math.ceil(max_page_number1 + 1) / 2)}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(Math.ceil(max_page_number1 + 1) / 2))"  v-if="Math.ceil(max_page_number1) > 4">{{Math.ceil(Math.ceil(max_page_number1 + 1) / 2) + 1}}</b-button>
+                            <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number1) > 6">...</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(max_page_number1) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(max_page_number1) - 1)" v-if="Math.ceil(max_page_number1) > 1">{{Math.ceil(max_page_number1)}}</b-button>
+                            <b-button :class = "{ns: page_number1 === Math.ceil(max_page_number1)}" variant="outline-primary btn-sm" v-on:click="jumptopage1(Math.ceil(max_page_number1))" v-if="Math.ceil(max_page_number1) > 0">{{Math.ceil(max_page_number1) + 1}}</b-button>
+                            <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="next1()">&#9654;</b-button>
+                        </div>
+                    </td>
+                </tr>
+            </table> 
+        </div>
+        <div v-else>
+            <h4  v-if="friend.status==='1'">&#127942; Osobni rekordi <i>admina</i> <span style="color: #2196F3">{{this.friend.username}}</span></h4>
+            <h4  v-else>&#127942; Osobni rekordi <i>korisnika</i> <span style="color: #2196F3">{{this.friend.username}}</span></h4>
+            <h5 >Nije zabilježeno da je <span style="color: #2196F3">{{this.friend.username}}</span> riješio niti jednu zagonetku.</h5>
+        </div><br>
         <div v-if="friend.status === '1' && puzzleauthor().length > 0">
-            <table class="description" style='width: 100%; border-collapse: collapse'>
-                <tr>
-                    <td style="text-align: center;" colspan="8">
-                        <span class="tabletitle " v-if="friend.status==='1'">&#128218; Autorske zagonetke <i>admina</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-                        <span class="tabletitle " v-else>&#128218; Autorske zagonetke <i>korisnika</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-                        <button v-if="!showauthor" class = "xbtn" v-on:click="showauthor=!showauthor"><span>+</span></button>
-                        <button  class = "xbtn" v-on:click="showauthor=!showauthor" v-else><span>-</span></button>
-                    </td>
-                </tr>
-            </table>
-            <table v-if="showauthor" class="description" style='width: 100%; border-collapse: collapse'>
-                <tr>
-                    <td colspan="8">
-                        Prikaži:
-                        <span class="filter">{{page_length2}}</span>
-                        <table style="height: 20px; lineheight: 10px; font-size: 10px; display: inline-block; border-collapse: collapse">
-                            <tr>
-                                <td>
-                                    <span class="goup" v-on:click="page_length2 += 1">
-                                        &#9650;
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span class="godown" v-on:click="page_length2 -= 1">
-                                        &#9660;
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr><br> 
-                <tr style="border-bottom: gray 2px solid;">
-                    <th class="odd"><span style="white-space: nowrap">Broj</span><span style="white-space: nowrap"> zagonetke</span></th>
-                    <th class="odd"><span style="white-space: nowrap">Broj</span><span style="white-space: nowrap"> riječi</span></th>
-                    <th class="odd"><span style="white-space: nowrap">Duljina</span><span  style="white-space: nowrap"> riječi</span></th>
-                    <th style="white-space: nowrap" class="odd">Izvor</th>
-                    <th class="odd"></th>
-                    <th class="odd"></th>
-                    <th class="odd"></th>
-                    <th class="odd"></th>
-                </tr>
-                <tr class = "row" v-for="index in puzzle_array2" :key="index">
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{puzzleauthor()[page_length2 * page_number2 + index].id}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).numwords}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).max_word_len}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).intro[1]}}</td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}"><router-link v-if="user.status === '1'" v-bind:to="{ name: 'update', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}">&#127918;</router-link></td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}"><router-link title ="Riješi zagonetku" v-bind:to="{ name: 'solve', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}">&#127918;</router-link></td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}"><router-link title ="Pogledaj informacije o zagonetki" v-bind:to="{ name: 'puzzle_info', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}" style="color: black">&#128712;</router-link></td>
-                    <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}"><span v-if="user.status === '1'" style="cursor: pointer" v-on:click="delete_puzzle(puzzleauthor()[page_length2 * page_number2 + index].id)">&#10060;</span></td>
-                </tr>
-                <tr v-if="user.status === '1'">
-                    <td :class="{even: page_length2 % 2 === 0, odd: page_length2 % 2 !== 0}" colspan="7"></td>
-                    <td :class="{even: page_length2 % 2 === 0, odd: page_length2 % 2 !== 0}" title ="Stvori zagonetku"><router-link to="/create">&#10133;</router-link></td>		
-                </tr><br> 
-                <tr>
-                    <td colspan="8">
-                       <table style='width: 100%; border-collapse: collapse'>
-                            <tr>
-                                <td class = "description" v-if="puzzle_array2.length > 1">Pananagramke {{page_length2 * page_number2 + 1}}-{{Math.min(page_length2 * (page_number2 + 1), puzzleauthor().length)}} od {{puzzleauthor().length}}</td>
-                                <td class = "description" v-else>Pananagramka {{page_number2 + 1}} od {{puzzleauthor().length}}</td>
-                                <td class = "description">Stranica {{page_number2 + 1}} od {{max_page_number2 + 1}}</td>
-                                <!--<td class = "numforward" v-on:click="begin()">&#9664;&#9664;</td>-->
-                                <td class = "numforward" v-on:click="previous2()">&#9664;</td>
-                                <td :class = "{numforward: true, selected: page_number2 === 0}" v-on:click="jumptopage2(0)">1</td>
-                                <td :class = "{numforward: true, selected: page_number2 === 1}" v-on:click="jumptopage2(1)" v-if="Math.ceil(max_page_number2) > 2">2</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number2) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 2}" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number2) > 5 && Math.ceil(max_page_number2) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1}}</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1}" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number2) > 3">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2)}}</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2)}" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2))"  v-if="Math.ceil(max_page_number2) > 4">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2) + 1}}</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number2) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(max_page_number2) - 1}" v-on:click="jumptopage2(Math.ceil(max_page_number2) - 1)" v-if="Math.ceil(max_page_number2) > 1">{{Math.ceil(max_page_number2)}}</td>
-                                <td :class = "{numforward: true, selected: page_number2 === Math.ceil(max_page_number2)}" v-on:click="jumptopage2(Math.ceil(max_page_number2))" v-if="Math.ceil(max_page_number2) > 0">{{Math.ceil(max_page_number2) + 1}}</td>
-                                <td class = "numforward" v-on:click="next2()">&#9654;</td>
-                                <!--<td class = "numforward" v-on:click="end()">&#9654;&#9654;</td>-->
-                            </tr>
-                        </table>  
-                    </td>
-                </tr>
-            </table>
+            <h4 style="cursor: pointer" v-on:click="showauthor=!showauthor" v-if="friend.status==='1'">&#128218; Autorske zagonetke <i>admina</i> <span style="color: #2196F3">{{this.friend.username}}</span></h4>
+            <h4 style="cursor: pointer" v-on:click="showauthor=!showauthor" v-else>&#128218; Autorske zagonetke <i>korisnika</i> <span style="color: #2196F3">{{this.friend.username}}</span></h4>
+            <div v-if="showauthor">
+                <br>Prikaži:
+                <b-form-select style="margin:5px;display:inline-block; width: 75px"  v-model="page_length2" class="form-select" aria-label="Default select example">
+                    <option v-for='(item, index) in puzzleauthor()' v-bind:key = index>{{index + 1}}</option>
+                </b-form-select><br><br>
+            </div>
+            <table v-if="showauthor" class="table table-hover table-striped text-center" style='width: 100%; border-collapse: collapse'>
+                <thead>
+                    <tr style="border-bottom: gray 2px solid;">
+                        <th>Broj zagonetke</th>
+                        <th>Broj riječi</th>
+                        <th>Duljina riječi</th>
+                        <th>Izvor</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="index in puzzle_array2" :key="index">
+                        <td  >{{puzzleauthor()[page_length2 * page_number2 + index].id}}</td>
+                        <td  >{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).numwords}}</td>
+                        <td  >{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).max_word_len}}</td>
+                        <td  >{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).intro[1]}}</td>
+                        <td  ><router-link v-if="user.status === '1'" v-bind:to="{ name: 'update', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}">&#127918;</router-link></td>
+                        <td  ><router-link title ="Riješi zagonetku" v-bind:to="{ name: 'solve', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}">&#127918;</router-link></td>
+                        <td  ><router-link title ="Pogledaj informacije o zagonetki" v-bind:to="{ name: 'puzzle_info', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}" style="color: black">&#128712;</router-link></td>
+                        <td  ><span v-if="user.status === '1'" style="cursor: pointer" v-on:click="delete_puzzle(puzzleauthor()[page_length2 * page_number2 + index].id)">&#10060;</span></td>
+                    </tr>
+                    <tr v-if="user.status === '1'">
+                        <td colspan="7"></td>
+                        <td title ="Stvori zagonetku"><router-link to="/create">&#10133;</router-link></td>		
+                    </tr>
+                </tbody>
+                </table>
+                <table  v-if="showauthor" style='width: 100%; border-collapse: collapse'>
+                    <tr>
+                        <td v-if="puzzle_array2.length > 1">Pananagramke {{page_length2 * page_number2 + 1}}-{{Math.min(page_length2 * (page_number2 + 1), puzzleauthor().length)}} od {{puzzleauthor().length}}</td>
+                        <td v-else>Pananagramka {{page_number2 + 1}} od {{puzzleauthor().length}}</td>
+                        <td>Stranica {{page_number2 + 1}} od {{max_page_number2 + 1}}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="previous2()">&#9664;</b-button>
+                                <b-button :class = "{ns: page_number2 === 0}" variant="outline-primary btn-sm" v-on:click="jumptopage2(0)">1</b-button>
+                                <b-button :class = "{ns: page_number2 === 1}" variant="outline-primary btn-sm" v-on:click="jumptopage2(1)" v-if="Math.ceil(max_page_number2) > 2">2</b-button>
+                                <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number2) > 6">...</b-button>
+                                <b-button :class = "{ns: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 2}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number2) > 5 && Math.ceil(max_page_number2) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1}}</b-button>
+                                <b-button :class = "{ns: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number2) > 3">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2)}}</b-button>
+                                <b-button :class = "{ns: page_number2 === Math.ceil(Math.ceil(max_page_number2 + 1) / 2)}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(Math.ceil(max_page_number2 + 1) / 2))"  v-if="Math.ceil(max_page_number2) > 4">{{Math.ceil(Math.ceil(max_page_number2 + 1) / 2) + 1}}</b-button>
+                                <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number2) > 6">...</b-button>
+                                <b-button :class = "{ns: page_number2 === Math.ceil(max_page_number2) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(max_page_number2) - 1)" v-if="Math.ceil(max_page_number2) > 1">{{Math.ceil(max_page_number2)}}</b-button>
+                                <b-button :class = "{ns: page_number2 === Math.ceil(max_page_number2)}" variant="outline-primary btn-sm" v-on:click="jumptopage2(Math.ceil(max_page_number2))" v-if="Math.ceil(max_page_number2) > 0">{{Math.ceil(max_page_number2) + 1}}</b-button>
+                                <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="next2()">&#9654;</b-button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>  
         </div>
-        <p class="description" v-else>
-            <table class="description" style='width: 100%; border-collapse: collapse'>
-                <tr>
-                    <td style="text-align: center;" colspan="8">
-                        <span class="tabletitle">
-                            <span class="tabletitle " v-if="friend.status==='1'">&#128218; Autorske zagonetke <i>admina</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-                            <span class="tabletitle " v-else>&#128218; Autorske zagonetke <i>korisnika</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-                        </span>
-                    </td>
-                </tr><br>
-                <tr>
-                    <td style="text-align: center;" colspan="8">
-                        <span v-if="friend.status==='1'">Nije zabilježeno da je admin <span style="color: #2196F3">{{this.friend.username}}</span> stvorio niti jednu zagonetku.</span>
-                        <span v-else>Korisnik <span style="color: #2196F3">{{this.friend.username}}</span> nije admin pa ne može stvarati zagonetke.</span>
-                    </td>
-                </tr>
-            </table>
-        </p><br>
+        <div v-else>
+            <h4  v-if="friend.status==='1'">&#128218; Autorske zagonetke <i>admina</i> <span style="color: #2196F3">{{this.friend.username}}</span></h4>
+            <h4  v-else>&#128218; Autorske zagonetke <i>korisnika</i> <span style="color: #2196F3">{{this.friend.username}}</span></h4>
+            <h5  v-if="friend.status==='1'">Nije zabilježeno da je admin <span style="color: #2196F3">{{this.friend.username}}</span> stvorio niti jednu zagonetku.</h5>
+            <h5  v-else>Korisnik <span style="color: #2196F3">{{this.friend.username}}</span> nije admin pa ne može stvarati zagonetke.</h5>
+        </div><br>
     </div>
 </template>
 

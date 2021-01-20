@@ -1,163 +1,138 @@
 <template>
-   <div>
-        <table class="description" width="100%" style='border-collapse: collapse'>
-            <tr>
-                <h1 class="description pagetitle">&#128221; Popis zagonetki</h1>
-            <tr>
-            <tr>
-                <td>
-                    <span class="description">Prikaži: </span>
-                    <!--<input class="filter" type="number" min="1" :max="puzzles.length" v-model="page_length">-->
-                    <!--<div class="dropdown">
-                        <button class="dropbtn2">{{page_length}}</button>
-                        <div class="dropdown-content2">
-                            <label v-for="size in Array(Math.min(puzzles.length, 18)).keys()" :key="size" class="updown">
-                                <input type="radio" name="page_size" v-on:change="page_length=size + 1" :value="size"><span class="description checkmark">{{size + 1}}</span> 
-                            </label>
+   <div class='container-fluid'>
+        <br>
+        <h1 class="display-4" >&#128221; Popis zagonetki</h1>
+        <div class='row'>
+            <div class="d-inline-flex align-items-center p-2">
+                <div class = "p-2">
+                    <span >Prikaži: </span>
+                    <b-form-select style="margin:5px;display:inline-block; width: 75px"  v-model="page_length" class="form-select" aria-label="Default select example">
+                        <option v-for='(item, index) in puzzles' v-bind:key = index>{{index + 1}}</option>
+                    </b-form-select>
+                </div>
+                <div class="d-inline-flex align-items-center p-2">
+                    <div class = "p-2">
+                        <span>Sortiraj po: </span>
+                    </div>
+                    <div class="d-inline-flex align-items-center p-2">
+                        <div class = "p-2">
+                            <b-form-select name="kriterij" v-model="sortcrit" :options="options" style="width: 200px"></b-form-select>
                         </div>
-                    </div>-->
-                    <span class="filter">{{page_length}}</span>
-                    <table style="height: 20px; lineheight: 10px; font-size: 10px; display: inline-block; border-collapse: collapse">
-                        <tr>
-                            <td>
-                                <span class="goup" v-on:click="page_length += 1">
-                                    &#9650;
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <span class="godown" v-on:click="page_length -= 1">
-                                    &#9660;
-                                </span>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr><br>
-            <tr>
-                <td style="white-space:nowrap;">
-                    <span class="description">Sortiraj po: </span>
-                    <div class="dropdown">
-                        <button class="dropbtn">{{sortcrit}}</button>
-                        <div class="dropdown-content">
-                            <label class="updown">
-                                <input type="radio" name="kriterij" v-on:change="sortcrit='broju zagonetke'; sort()" value="1" checked="checked"> <span class="description checkmark">broju zagonetke</span> 
-                            </label>
-                            <label class="updown">
-                                <input type="radio" name="kriterij" v-on:change="sortcrit='broju riječi'; sort()" value="2"> <span class="description checkmark">broju riječi</span> 
-                            </label>
-                            <label class="updown">
-                                <input type="radio" name="kriterij" v-on:change="sortcrit='duljini riječi'; sort()" value="3"> <span class="description checkmark">duljini riječi</span> 
-                            </label>
-                            <label class="updown">
-                                <input type="radio" name="kriterij" v-on:change="sortcrit='izvoru'; sort()" value="4"> <span class="description checkmark">izvoru</span> 
-                            </label>
+                        <div class = "p-2">
+                            <div class="btn-group" role="group">
+                                <b-button variant="outline-primary btn-sm" v-on:click="direction='up';sort()">&#9660;</b-button>
+                                <b-button variant="outline-primary btn-sm" v-on:click="direction='down';sort()">&#9650;</b-button>
+                            </div>
                         </div>
                     </div>
-                    <label class="updown">
-                        <input name="direction" type="radio" value="1" v-on:change="sort()" checked="checked"> <span class="checkmark down"></span>
-                    </label>
-                    <label class="updown">
-                        <input name="direction" type="radio" value="0" v-on:change="sort()"> <span class="checkmark up"></span>
-                    </label>
-                </td>
-            </tr><br>
-            <tr>
-                <td style="white-space:nowrap;">
-                    <span class="description">Pretraži po: </span>
-                    <div class="dropdown">
-                        <button class="dropbtn">{{filtercrit}}</button>
-                        <div class="dropdown-content">
-                            <label class="updown">
-                                <input type="radio" name="filter" v-on:change="filtercrit='broju zagonetke'" value="1" checked="checked"> <span class="description checkmark">broju zagonetke</span> 
-                            </label>
-                            <label class="updown">
-                                <input type="radio" name="filter" v-on:change="filtercrit='broju riječi'" value="2"> <span class="description checkmark">broju riječi</span> 
-                            </label>
-                            <label class="updown">
-                                <input type="radio" name="filter" v-on:change="filtercrit='duljini riječi'" value="3"> <span class="description checkmark">duljini riječi</span> 
-                            </label>
-                            <label class="updown">
-                                <input type="radio" name="filter" v-on:change="filtercrit='izvoru'" value="4"> <span class="description checkmark">izvoru</span> 
-                            </label>
+                </div>
+                <div class="d-inline-flex align-items-center p-2">
+                    <div class = "p-2">
+                        <span>Pretraži po: </span>
+                    </div>
+                    <div class = "p-2">
+                        <b-form-select name="filter" v-model="filtercrit" :options="options"  style="width: 200px"></b-form-select><br>
+                    </div>
+                    <div class = "p-2">
+                        <div class="d-inline-flex align-items-center p-2">
+                            <div class="p-2"> 
+                                &#128270;
+                                <b-form-input autocomplete="off" id="regex" style="margin:5px;display:inline-block; width:225px" placeholder="Unesite kriterij za pretragu" type="text"></b-form-input>
+                            </div>
+                            <div class="p-2">
+                                <b-button variant='outline-primary' v-on:click="addfilter()">Dodaj</b-button>
+                            </div>
                         </div>
                     </div>
-                    &#128270;
-                    <input autocomplete="off" class="filter register" id="regex" placeholder="Unesite kriterij za pretragu" type="text">
-                    <button class = "router" v-on:click="addfilter()">Dodaj</button>
-                </td>
-            </tr><br>
-            <tr>
-                <td>  
-                    <span v-if="filters.length">
-                        <span class="description">Kriteriji:</span>
-                        <button class = "crit" style="cursor: context-menu" v-for='(filter, index) in filters' :key = index><span style="cursor: pointer" v-on:click = "remove_filter(index)">&#10062;</span> {{filter}}</button>
-                        <br><br>
-                        <button class = "clearcrit" v-on:click="filters = []; filtertype = []; filtervalue = []; filter()">Poništi sve</button>
-                    </span>
-                    <p v-else class = "description">
-                        Nisu uneseni kriteriji za pretragu.
-                    </p>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <div v-if="puzzles.length">
-                        <table style='width: 100%; border-collapse: collapse'>
-                            <tr style="border-bottom: gray 2px solid;">
-                                <th class="odd"><span style="white-space: nowrap">Broj</span><span style="white-space: nowrap"> zagonetke</span></th>
-                                <th class="odd"><span style="white-space: nowrap">Broj</span><span style="white-space: nowrap"> riječi</span></th>
-                                <th class="odd"><span style="white-space: nowrap">Duljina</span><span  style="white-space: nowrap"> riječi</span></th>
-                                <th style="white-space: nowrap" class="odd">Izvor</th>
-                                <th class="odd"></th>
-                                <th class="odd"></th>
-                                <th class="odd"></th>
-                                <th class="odd"></th>
-                            </tr>
-                            <tr class = "row" v-for='index in puzzle_array' v-bind:key = index>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{puzzles[page_length * page_number + index].id}}</td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{puzzles[page_length * page_number + index].numwords}}</td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{puzzles[page_length * page_number + index].max_word_len}}</td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}">{{puzzles[page_length * page_number + index].intro[1]}}</td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}"><router-link title ="Ažuriraj zagonetku" v-if="user.status === '1'" v-bind:to="{ name: 'update', params: { id: puzzles[page_length * page_number + index].id }}">&#9997;</router-link></td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}" title ="Riješi zagonetku"><router-link v-bind:to="{ name: 'solve', params: { id: puzzles[page_length * page_number + index].id }}">&#127918;</router-link></td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}" title ="Pogledaj informacije o zagonetki"><router-link v-bind:to="{ name: 'puzzle_info', params: { id: puzzles[page_length * page_number + index].id }}" style="color: black">&#128712;</router-link></td>
-                                <td :class="{even: index % 2 === 0, odd: index % 2 !== 0}"><span title ="Izbriši zagonetku" v-if="user.status === '1'" style="cursor: pointer" v-on:click="delete_puzzle(puzzles[page_length * page_number + index].id)">&#10060;</span></td>
-                            </tr>
-                            <tr v-if="user.status === '1'">
-                                <td :class="{even: page_length % 2 === 0, odd: page_length % 2 !== 0}" colspan="7"></td>
-                                <td :class="{even: page_length % 2 === 0, odd: page_length % 2 !== 0}" title ="Stvori zagonetku"><router-link to="/create">&#10133;</router-link></td>		
-                            </tr>
-                        </table> 
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class = "col">
+                <div class="d-inline-flex align-items-center p-2" v-if="filters.length">
+                    <div class="p-2">
+                        <span>Kriteriji:</span>
+                    </div>
+                    <div class="p-2">
+                        <b-button variant='light' style="cursor: context-menu; margin:5px" v-for='(filter, index) in filters' :key = index><span style="cursor: pointer" v-on:click = "remove_filter(index)">&#10062;</span> {{filter}}</b-button>
                         <br>
-                        <table style='width: 100%; border-collapse: collapse'>
-                            <tr>
-                                <td class = "description" v-if="puzzle_array.length > 1">Pananagramke {{page_length * page_number + 1}}-{{Math.min(page_length * (page_number + 1), puzzles.length)}} od {{puzzles.length}}</td>
-                                <td class = "description" v-else>Pananagramka {{page_length * page_number + 1}} od {{puzzles.length}}</td>
-                                <td class = "description">Stranica {{page_number + 1}} od {{max_page_number + 1}}</td>
-                                <!--<td class = "numforward" v-on:click="begin()">&#9664;&#9664;</td>-->
-                                <td class = "numforward" v-on:click="previous()">&#9664;</td>
-                                <td :class = "{numforward: true, selected: page_number === 0}" v-on:click="jumptopage(0)">1</td>
-                                <td :class = "{numforward: true, selected: page_number === 1}" v-on:click="jumptopage(1)" v-if="Math.ceil(max_page_number) > 2">2</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2) - 2}" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number) > 5 && Math.ceil(max_page_number) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1}}</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1}" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number) > 3">{{Math.ceil(Math.ceil(max_page_number + 1) / 2)}}</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2)}" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2))"  v-if="Math.ceil(max_page_number) > 4">{{Math.ceil(Math.ceil(max_page_number + 1) / 2) + 1}}</td>
-                                <td class = "numforward" v-if="Math.ceil(max_page_number) > 6">...</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(max_page_number) - 1}" v-on:click="jumptopage(Math.ceil(max_page_number) - 1)" v-if="Math.ceil(max_page_number) > 1">{{Math.ceil(max_page_number)}}</td>
-                                <td :class = "{numforward: true, selected: page_number === Math.ceil(max_page_number)}" v-on:click="jumptopage(Math.ceil(max_page_number))" v-if="Math.ceil(max_page_number) > 0">{{Math.ceil(max_page_number) + 1}}</td>
-                                <td class = "numforward" v-on:click="next()">&#9654;</td>
-                                <!--<td class = "numforward" v-on:click="end()">&#9654;&#9654;</td>-->
-                            </tr>
-                        </table> 
+                   </div>
+                </div>
+                <div class="d-inline-flex align-items-center p-2" v-if="filters.length">
+                    <div class="p-2">
+                        <b-button variant='outline-danger' style="margin:5px" v-on:click="filters = []; filtertype = []; filtervalue = []; filter()">Poništi sve</b-button>
                     </div>
-                    <div v-else>
-                        <p class= "description">Pretraga pomoću zadanih kriterija nije dala rezultate. Uklonite neke kriterije i pokušajte ponovno.</p>
-                    </div>
-                </td>
-            </tr>
-        </table>
+                </div>
+                <div v-else>
+                    Nisu uneseni kriteriji za pretragu.
+                </div>
+            </div>
+       </div><br>
+       <div class = "row" v-if="puzzles.length">
+            <div class = "col">
+                <table class="table table-hover table-striped text-center">
+                    <thead>
+                        <tr>
+                            <th>Broj zagonetke</th>
+                            <th>Broj riječi</th>
+                            <th>Duljina riječi</th>
+                            <th>Izvor</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for='index in puzzle_array' v-bind:key = index>
+                            <td >{{puzzles[page_length * page_number + index].id}}</td>
+                            <td >{{puzzles[page_length * page_number + index].numwords}}</td>
+                            <td >{{puzzles[page_length * page_number + index].max_word_len}}</td>
+                            <td class = 'text-left'>{{puzzles[page_length * page_number + index].intro[1]}}</td>
+                            <td><router-link title ="Ažuriraj zagonetku" v-if="user.status === '1'" v-bind:to="{ name: 'update', params: { id: puzzles[page_length * page_number + index].id }}">&#9997;</router-link></td>
+                            <td  title ="Riješi zagonetku"><router-link v-bind:to="{ name: 'solve', params: { id: puzzles[page_length * page_number + index].id }}">&#127918;</router-link></td>
+                            <td  title ="Pogledaj informacije o zagonetki"><router-link v-bind:to="{ name: 'puzzle_info', params: { id: puzzles[page_length * page_number + index].id }}" style="color: black">&#128712;</router-link></td>
+                            <td ><span title ="Izbriši zagonetku" v-if="user.status === '1'" style="cursor: pointer" v-on:click="delete_puzzle(puzzles[page_length * page_number + index].id)">&#10060;</span></td>
+                        </tr>
+                        <tr v-if="user.status === '1'">
+                            <td colspan="7"></td>
+                            <td title ="Stvori zagonetku"><router-link to="/create">&#10133;</router-link></td>		
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+       <div class = "row" v-if="puzzles.length">
+            <div class = "col">
+                <table style="width:100%">
+                    <tr>
+                        <td v-if="puzzle_array.length > 1">Pananagramke {{page_length * page_number + 1}}-{{Math.min(page_length * (page_number + 1), puzzles.length)}} od {{puzzles.length}}</td>
+                        <td v-else>Pananagramka {{page_length * page_number + 1}} od {{puzzles.length}}</td>
+                        <td>Stranica {{page_number + 1}} od {{max_page_number + 1}}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="previous()">&#9664;</b-button>
+                                <b-button :class = "{ns: page_number === 0}" variant="outline-primary btn-sm" v-on:click="jumptopage(0)">1</b-button>
+                                <b-button :class = "{ns: page_number === 1}" variant="outline-primary btn-sm" v-on:click="jumptopage(1)" v-if="Math.ceil(max_page_number) > 2">2</b-button>
+                                <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number) > 6">...</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2) - 2}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2) - 2)"  v-if="Math.ceil(max_page_number) > 5 && Math.ceil(max_page_number) % 2 === 0">{{Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1}}</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2) - 1)"  v-if="Math.ceil(max_page_number) > 3">{{Math.ceil(Math.ceil(max_page_number + 1) / 2)}}</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(Math.ceil(max_page_number + 1) / 2)}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(Math.ceil(max_page_number + 1) / 2))"  v-if="Math.ceil(max_page_number) > 4">{{Math.ceil(Math.ceil(max_page_number + 1) / 2) + 1}}</b-button>
+                                <b-button variant="outline-primary btn-sm" v-if="Math.ceil(max_page_number) > 6">...</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(max_page_number) - 1}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(max_page_number) - 1)" v-if="Math.ceil(max_page_number) > 1">{{Math.ceil(max_page_number)}}</b-button>
+                                <b-button :class = "{ns: page_number === Math.ceil(max_page_number)}" variant="outline-primary btn-sm" v-on:click="jumptopage(Math.ceil(max_page_number))" v-if="Math.ceil(max_page_number) > 0">{{Math.ceil(max_page_number) + 1}}</b-button>
+                                <b-button variant="outline-primary btn-sm" style="font-family: Arial, Helvetica, sans-serif;" v-on:click="next()">&#9654;</b-button>
+                            </div>
+                        </td>
+                    </tr>
+                </table> 
+            </div>
+        </div>
+        <div class = "row" v-else>
+            <div class="col">
+                Pretraga pomoću zadanih kriterija nije dala rezultate. Uklonite neke kriterije i pokušajte ponovno.
+            </div>
+        </div>
     </div>
 </template>
 
@@ -175,6 +150,25 @@ export default {
   data() {
     return {
         user: user,
+        direction: "up",
+        options: [
+                        {
+                            "value": "broju zagonetke",
+                            "text": "broju zagonetke"
+                        },
+                        {
+                            "value": "broju riječi",
+                            "text": "broju riječi"
+                        },
+                        {
+                            "value": "duljini riječi",
+                            "text": "duljini riječi"
+                        },
+                        {
+                            "value": "izvoru",
+                            "text": "izvoru"
+                        }
+                    ],
         puzzles: [],
         page_length: 0,
         page_number: 0,
@@ -238,8 +232,8 @@ export default {
           }
       },
         compare(a, b) {
-            if (document.getElementsByName("direction")[0].checked === true) {
-                if (document.getElementsByName("kriterij")[0].checked === true) {
+            if (this.direction === "up") {
+                if (this.sortcrit === "broju zagonetke") {
                     if (a.id > b.id) {
                         return 1;
                     } 
@@ -263,7 +257,7 @@ export default {
                     }
                     return 0;
                 }
-                if (document.getElementsByName("kriterij")[1].checked === true) {
+                if (this.sortcrit === "broju riječi") {
                     if (a.numwords > b.numwords) {
                         return 1;
                     } 
@@ -287,7 +281,7 @@ export default {
                     }
                     return 0;
                 }
-                if (document.getElementsByName("kriterij")[2].checked === true) {
+                if (this.sortcrit === "duljini riječi") {
                     if (a.max_word_len > b.max_word_len) {
                         return 1;
                     } 
@@ -311,7 +305,7 @@ export default {
                     }
                     return 0;
                 }
-                if (document.getElementsByName("kriterij")[3].checked === true) {
+                if (this.sortcrit === "izvoru") {
                     if (a.intro[1] > b.intro[1]) {
                         return 1;
                     } 
@@ -336,7 +330,7 @@ export default {
                     return 0;
                 }
             } else {
-                if (document.getElementsByName("kriterij")[0].checked === true) {
+                if (this.sortcrit === "broju zagonetke") {
                     if (a.id < b.id) {
                         return 1;
                     }  
@@ -360,7 +354,7 @@ export default {
                     } 
                     return 0;
                 }
-                if (document.getElementsByName("kriterij")[1].checked === true) {
+                if (this.sortcrit === "broju riječi") {
                     if (a.numwords < b.numwords) {
                         return 1;
                     } 
@@ -384,7 +378,7 @@ export default {
                     } 
                     return 0;
                 }
-                if (document.getElementsByName("kriterij")[2].checked === true) {
+                if (this.sortcrit === "duljini riječi") {
                     if (a.max_word_len < b.max_word_len) {
                         return 1;
                     } 
@@ -408,7 +402,7 @@ export default {
                     } 
                     return 0;
                 }
-                if (document.getElementsByName("kriterij")[3].checked === true) {
+                if (this.sortcrit === "izvoru") {
                     if (a.intro[1] < b.intro[1]) {
                         return 1;
                     } 
@@ -436,22 +430,22 @@ export default {
         },
         addfilter() {
             var b = document.getElementById("regex").value;
-            if (document.getElementsByName("filter")[0].checked) {
+            if (this.filtercrit === "broju zagonetke") {
                 this.filters.push("Broj zagonetke: " + b);
                 this.filtertype.push(0);
                 this.filtervalue.push(b);
             }
-            if (document.getElementsByName("filter")[1].checked) {
+            if (this.filtercrit === "broju riječi") {
                 this.filters.push("Broj riječi: " + b);
                 this.filtertype.push(1);
                 this.filtervalue.push(b);
             }
-            if (document.getElementsByName("filter")[2].checked) {
+            if (this.filtercrit === "duljini riječi") {
                 this.filters.push("Duljina riječi: " + b);
                 this.filtertype.push(2);
                 this.filtervalue.push(b);
             }
-            if (document.getElementsByName("filter")[3].checked) {
+            if (this.filtercrit === "izvoru") {
                 this.filters.push("Izvor: " + b);
                 this.filtertype.push(3);
                 this.filtervalue.push(b);
@@ -595,6 +589,9 @@ export default {
           if (this.page_number > this.max_page_number) {
               this.page_number = this.max_page_number;
           }
+      },
+      sortcrit: function() {
+          this.sort();
       }
   }
 }
