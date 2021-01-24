@@ -21,7 +21,7 @@
                 <tr>
                     <td>{{numwords}}</td>
                     <td>{{max_word_len}} </td>
-                    <td>{{intro[1]}}</td>
+                    <td class='text-left'>{{intro[1]}}</td>
                     <td v-if="!isblocked(finduserwithid(authorid).username) && (finduserwithid(authorid).visibility.toString() === '1' || this.arefriends(finduserwithid(authorid).username))">{{finduserwithid(authorid).username}}</td>
                     <td v-else>Izostavljeno</td>
                     <td>{{created}}</td>

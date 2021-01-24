@@ -122,6 +122,7 @@ export default {
                 visibility: this.dummyuser.visibility,
             })
             .then(() => {
+                this.dummyuser.password = "";
                 this.user = this.dummyuser;
                 sessionStorage.user = JSON.stringify(this.user);
                 window.location.reload();

@@ -90,7 +90,7 @@
                         <td>{{userrecords()[page_length1 * page_number1 + index].id}}</td>
                         <td>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).numwords}}</td>
                         <td>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).max_word_len}}</td>
-                        <td>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).intro[1]}}</td>
+                        <td class='text-left'>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).intro[1]}}</td>
                         <td style="white-space: nowrap"  >{{userrecords()[page_length1 * page_number1 + index].scoredate.split(" ")[0]}}</td>
                         <td style="white-space: nowrap"  >{{userrecords()[page_length1 * page_number1 + index].scoredate.split(" ")[1]}}</td>
                         <td style="white-space: nowrap"  >{{format(userrecords()[page_length1 * page_number1 + index].score)}}</td>
@@ -150,7 +150,7 @@
                     <td>{{puzzleauthor()[page_length2 * page_number2 + index].id}}</td>
                     <td>{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).numwords}}</td>
                     <td>{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).max_word_len}}</td>
-                    <td>{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).intro[1]}}</td>
+                    <td class='text-left'>{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).intro[1]}}</td>
                     <td><router-link title ="Ažuriraj zagonetku" v-if="user.status === '1'" v-bind:to="{ name: 'update', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}">&#9997;</router-link></td>
                     <td title ="Riješi zagonetku"><router-link v-bind:to="{ name: 'solve', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}">&#127918;</router-link></td>
                     <td title ="Pogledaj informacije o zagonetki"><router-link v-bind:to="{ name: 'puzzle_info', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}" style="color: black">&#128712;</router-link></td>
@@ -241,7 +241,6 @@ export default {
         axios.post('http://localhost/panagram/src/getusers.php', {
             request: 4,
             username: this.user.username,
-            password: this.user.password,
             userId: this.user.userId,
             status: this.user.status,
             visibility: this.user.visibility,
@@ -257,12 +256,9 @@ export default {
         this.user.password = this.pwd;
         sessionStorage.user = JSON.stringify(this.user);
         axios.post('http://localhost/panagram/src/getusers.php', {
-            request: 4,
-            username: this.user.username,
+            request: 5,
             password: this.pwd,
             userId: this.user.userId,
-            status: this.user.status,
-            visibility: this.user.visibility,
         })
         .then(() => {
             window.alert("Lozinka je izmijenjena.");

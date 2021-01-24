@@ -261,7 +261,6 @@ export default {
                 request: 4,
                 userId: b.userId,
                 username: b.username,
-                password: b.password,
                 status: 1,
                 visibility: b.visibility,
             })

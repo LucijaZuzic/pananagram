@@ -99,37 +99,58 @@ export default {
         });
       },
       find_user() {
-        var found = false;
+        if (this.users.length === 0) {
+          window.alert("Neispravno korisničko ime ili lozinka.")
+          this.user.userId = "";
+          this.user.username = "";
+          this.user.status = "";
+          this.user.visibility = "";
+          this.dummyuser.userId = "";
+          this.dummyuser.username = "";
+          this.dummyuser.password = "";
+          this.dummyuser.status = "";
+          this.dummyuser.visibility = "";
+          sessionStorage.user = JSON.stringify(this.user);
+        }
         var i;
         for (i = 0; i < this.users.length; i++) {
-            if (this.users[i].username === this.dummyuser.username && this.users[i].password === this.dummyuser.password) {
-                found = true;
-                this.user.username = this.dummyuser.username;
-                this.user.password = this.dummyuser.password;
-                this.user.userId = this.users[i].userId;
-                this.user.status = this.users[i].status;
-                this.user.visibility = this.users[i].visibility;
-                this.dummyuser.userId = this.users[i].userId;
-                this.dummyuser.status = this.users[i].status;
-                this.dummyuser.visibility = this.users[i].visibility;
-                sessionStorage.user = JSON.stringify(this.user);
+            if (this.users[i].username === this.dummyuser.username) {
+              axios.post('http://localhost/panagram/src/verifypassword.php', {
+                username: this.dummyuser.username,
+                password: this.dummyuser.password,
+              })
+              .then((response) => {
+                if (response.data) {
+                  this.user.username = this.dummyuser.username;
+                  this.user.userId = this.users[0].userId;
+                  this.user.status = this.users[0].status;
+                  this.user.password = "";
+                  this.user.visibility = this.users[0].visibility;
+                  this.dummyuser.userId = this.users[0].userId;
+                  this.dummyuser.status = this.users[0].status;
+                  this.dummyuser.visibility = this.users[0].visibility;
+                  this.dummyuser.password = "";
+                  sessionStorage.user = JSON.stringify(this.user);
+                  this.$router.push("/puzzle_list");
+                } else {
+                  window.alert("Neispravno korisničko ime ili lozinka.")
+                  this.user.userId = "";
+                  this.user.username = "";
+                  this.user.status = "";
+                  this.user.password = "";
+                  this.user.visibility = "";
+                  this.dummyuser.userId = "";
+                  this.dummyuser.username = "";
+                  this.dummyuser.password = "";
+                  this.dummyuser.status = "";
+                  this.dummyuser.visibility = "";
+                  sessionStorage.user = JSON.stringify(this.user);
+                }
+              })
+              .catch((error) => {
+                  console.log(error);
+              });
             }
-        }
-        if (!found) {
-            window.alert("Neispravno korisničko ime ili lozinka.")
-            this.user.userId = "";
-            this.user.username = "";
-            this.user.password = "";
-            this.user.status = "";
-            this.user.visibility = "";
-            this.dummyuser.userId = "";
-            this.dummyuser.username = "";
-            this.dummyuser.password = "";
-            this.dummyuser.status = "";
-            this.dummyuser.visibility = "";
-            sessionStorage.user = JSON.stringify(this.user);
-        } else {
-            this.$router.push("/puzzle_list");
         }
      }
   }

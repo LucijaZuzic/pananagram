@@ -22,7 +22,7 @@
 
   // Fetch All records
   if ($request == 1) {
-    $userData = mysqli_query($con,"select * from users order by userId asc");
+    $userData = mysqli_query($con,"select username,userId,status,visibility from users order by userId asc");
     $response = array();
     while($row = mysqli_fetch_assoc($userData)){
       $response[] = $row;
@@ -35,7 +35,7 @@
 
 if($request == 2){
   $username = $data->username;
-  $userData = mysqli_query($con,"SELECT * FROM users WHERE username='".$username."'");
+  $userData = mysqli_query($con,"SELECT username,userId,status,visibility FROM users WHERE username='".$username."'");
   $response = array();
   while($row = mysqli_fetch_assoc($userData)){
     $response[] = $row;
@@ -49,6 +49,7 @@ if($request == 2){
 if($request == 3){
   $username = $data->username;
   $password = $data->password;
+  $password = password_hash ( $password , PASSWORD_DEFAULT);
   $userId = $data->userId;
   $status = $data->status;
 
@@ -65,19 +66,30 @@ if($request == 3){
   exit;
 }  
 
-// Update record
+// Update all but password
 if($request == 4){
   $username = $data->username;
-  $password = $data->password;
   $userId = $data->userId;
   $status = $data->status;
   $visibility = $data->visibility;
-  mysqli_query($con,"UPDATE users SET password='".$password."',userId='".$userId."',status='".$status."',visibility='".$visibility."' WHERE username='".$username."'");
+  mysqli_query($con,"UPDATE users SET userId='".$userId."',status='".$status."',visibility='".$visibility."' WHERE username='".$username."'");
   echo (mysqli_affected_rows($con));
   echo (mysqli_error($con));
   echo "Update successfully";
   exit;
 }  
+
+// Update password
+if($request == 5){
+  $password = $data->password;
+  $password = password_hash ( $password , PASSWORD_DEFAULT);
+  $userId = $data->userId;
+  mysqli_query($con,"UPDATE users SET password='".$password."' WHERE userId='".$userId."'");
+  echo (mysqli_affected_rows($con));
+  echo (mysqli_error($con));
+  echo "Update successfully";
+  exit;
+}
 
 ?>
  

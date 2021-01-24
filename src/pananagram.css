@@ -206,6 +206,7 @@ a:hover {
     width: 45px;
     height: 45px;
     border: 1px solid black;
+    background-size: cover;
     color:black;
     line-height: 100%;
   }
@@ -258,6 +259,7 @@ a:hover {
   .rowwithhint {
     background: #e7cd99;
     color: black;
+    background-size: cover;
   }
   .incorrect {
     background: #d4766f !important;
@@ -304,7 +306,7 @@ a:hover {
   }
   .selectedword {
     background-color: #c5c4bf;
-    ;
+    background-size: cover;
   }
   input:checked + .toggle {
     background-color: #d4766f;

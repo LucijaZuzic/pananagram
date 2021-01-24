@@ -1,11 +1,16 @@
 <template>
     <div class='container-fluid'>
-        <h1 class="display-4">
-            <span v-if="friend.status==='1'" title="Admin">&#127775; Informacije o <i>adminu</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-            <span v-else title="Korisnik">&#11088; Informacije o <i>korisniku</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
-        </h1><br>
+        <br>
         <div class="row">
-            <div clas="col">
+            <div class="col">
+                <h1 class="display-4">
+                    <span v-if="friend.status==='1'" title="Admin">&#127775; Informacije o <i>adminu</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
+                    <span v-else title="Korisnik">&#11088; Informacije o <i>korisniku</i> <span style="color: #2196F3">{{this.friend.username}}</span></span>
+                </h1>
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col">
                 <h4  v-if="arefriends(friend.username)">
                     <p>&#128145; Prijatelji ste od {{friendssince(friend.username)}}</p>
                     <p style="cursor: pointer" v-on:click="unfriend(friend.username)">&#128148; Prekini prijateljstvo</p>
@@ -15,18 +20,19 @@
                     <p v-if="!amblocked(friend.username)" style="cursor: pointer" v-on:click="sendrequest(friend.username)">&#128140; Pošalji zahtjev za prijateljstvo</p>
                 </h4>
             </div>
-            <div clas="col">
+            <div class="col">
                 <h4 >
                     <p v-if="amblocked(friend.username)" style="cursor: pointer" v-on:click="unblock(friend.username)">&#9989; Ukloni blokadu</p>
                     <p v-else style="cursor: pointer" v-on:click="block(friend.username)">&#128683; Blokiraj korisnika</p>
                 </h4>
             </div>
-            <div clas="col">
+            <div class="col">
                 <h4  v-if="user.status === '1' && friend.status !== '1'">
                     <p style="cursor: pointer" v-on:click="upgrade(friend)">&#128081; Promoviraj u admina</p>
                 </h4>
             </div>
-        </div><br>
+        </div>
+        <hr><br>
         <div class = "row" v-if="userrecords().length > 0">
             <div class="col">
                 <h4 v-on:click="showrecords=!showrecords" style="cursor: pointer" v-if="friend.status==='1'">&#127942; Osobni rekordi <i>admina</i> <span style="color: #2196F3">{{this.friend.username}}</span></h4>
@@ -57,7 +63,7 @@
                     <td>{{userrecords()[page_length1 * page_number1 + index].id}}</td>
                     <td>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).numwords}}</td>
                     <td>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).max_word_len}}</td>
-                    <td>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).intro[1]}}</td>
+                    <td class='text-left'>{{findpuzzlewithid(userrecords()[page_length1 * page_number1 + index].id).intro[1]}}</td>
                     <td>{{userrecords()[page_length1 * page_number1 + index].scoredate.split(" ")[0]}}</td>
                     <td>{{userrecords()[page_length1 * page_number1 + index].scoredate.split(" ")[1]}}</td>
                     <td>{{format(userrecords()[page_length1 * page_number1 + index].score)}}</td>
@@ -119,7 +125,7 @@
                         <td  >{{puzzleauthor()[page_length2 * page_number2 + index].id}}</td>
                         <td  >{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).numwords}}</td>
                         <td  >{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).max_word_len}}</td>
-                        <td  >{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).intro[1]}}</td>
+                        <td  class='text-left'>{{findpuzzlewithid(puzzleauthor()[page_length2 * page_number2 + index].id).intro[1]}}</td>
                         <td  ><router-link v-if="user.status === '1'" v-bind:to="{ name: 'update', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}">&#127918;</router-link></td>
                         <td  ><router-link title ="Riješi zagonetku" v-bind:to="{ name: 'solve', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}">&#127918;</router-link></td>
                         <td  ><router-link title ="Pogledaj informacije o zagonetki" v-bind:to="{ name: 'puzzle_info', params: { id: puzzleauthor()[page_length2 * page_number2 + index].id }}" style="color: black">&#128712;</router-link></td>
@@ -495,7 +501,6 @@ export default {
                 request: 4,
                 userId: b.userId,
                 username: b.username,
-                password: b.password,
                 status: 1,
                 visibility: b.visibility,
             })
